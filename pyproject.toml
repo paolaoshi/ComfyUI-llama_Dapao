@@ -1,0 +1,15 @@
+[project]
+name = "Dapao-Toolbox"
+description = "Comfyui的llama节点，集合最新gemama4和Qwen3.5节点，方便ComfyUI调用"
+version = "1.1.1"
+license = { file = "LICENSE" }
+
+[project.urls]
+Repository = "https://github.com/paolaoshi/ComfyUI-llama_Dapao"
+
+[tool.comfy]
+PublisherId = "paolaoshi"
+DisplayName = "llama-cpp-dapao"
+Icon = ""
+Banner = ""
+
