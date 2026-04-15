@@ -1,0 +1,1295 @@
+{
+  "id": "420a3a2d-d4cc-41d5-97be-b022f4be0058",
+  "revision": 0,
+  "last_node_id": 27,
+  "last_link_id": 25,
+  "nodes": [
+    {
+      "id": 3,
+      "type": "Dapao_LlamaCaptionOptions",
+      "pos": [
+        -207.73107406017508,
+        -6142.344221397875
+      ],
+      "size": [
+        349.41171875,
+        442
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "🍭llama反推选项",
+          "type": "LLAMA_CAPTION_OPTIONS",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Dapao_LlamaCaptionOptions",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "id": 4,
+      "type": "LoadImage",
+      "pos": [
+        -545.0665446371534,
+        -6147.494394334363
+      ],
+      "size": [
+        304.4956290588417,
+        724.811582428023
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            11
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "07cc5a8d436e33eb9753470cb1622b00.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "easy showAnything",
+      "pos": [
+        590.3092575580224,
+        -6143.433080831227
+      ],
+      "size": [
+        455.8773305553425,
+        648.6318501199175
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy showAnything",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "一名年轻女性侧身站立，面带灿烂且略显夸张的笑容，双眼明亮，黑色长发随风飘散，皮肤细腻。她穿着一件质感轻盈、带有垂直条纹纹理的粉色丝绸衬衫，下身搭配黑色运动短裤和白色过膝长袜，脚踩一双醒目的红白配色耐克运动鞋。背景是充满动感的东京街头拼贴画，包含霓虹灯招牌、模糊的人影以及各种文字元素，呈现出强烈的都市空间感。整体采用低角度仰拍镜头，营造出时尚杂志的视觉冲击力，仿佛使用索尼A7RIV相机配合35mm f/1.4镜头拍摄，光圈设定在f/2.8以保持适度的景深。画面充满人工霓虹灯带来的色彩跳跃，冷暖色调交织，呈现出一种迷幻、活泼且极具现代感的拼贴艺术氛围，图像中包含多处文字水印和装饰性图形。"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "CR Text",
+      "pos": [
+        -215.95046874223658,
+        -5633.637502422141
+      ],
+      "size": [
+        363.22366819346644,
+        205.92982714399932
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "文本",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "文本",
+          "name": "text",
+          "type": "*",
+          "links": []
+        },
+        {
+          "label": "显示帮助",
+          "name": "show_help",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "文本",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "CR Text"
+      },
+      "widgets_values": [
+        "描述这个图片，输出为中文提示词，不超过100字"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "Dapao_LlamaCaption",
+      "pos": [
+        162.5827104749145,
+        -6156.637228265302
+      ],
+      "size": [
+        400,
+        680
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "🖼️图像1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 11
+        },
+        {
+          "name": "🖼️图像2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像7",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像8",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🍭反推额外选项",
+          "shape": 7,
+          "type": "LLAMA_CAPTION_OPTIONS",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "💬反推文本",
+          "type": "STRING",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "📋完整对话历史",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "🔢使用的种子",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "Dapao_LlamaCaption"
+      },
+      "widgets_values": [
+        "gemma-4-26b-a4b-it-heretic.q3_k_s.gguf",
+        "Gemma4",
+        "gemma-4-26B-A4B-it-heretic-mmproj.q8_0.gguf",
+        8192,
+        -1,
+        256,
+        1344,
+        "提示词风格 - JSON",
+        "",
+        1120,
+        0,
+        "固定种子",
+        8196,
+        0.3,
+        0.9,
+        40,
+        1.1,
+        false,
+        false
+      ]
+    },
+    {
+      "id": 12,
+      "type": "Dapao_LlamaChat",
+      "pos": [
+        1983.678965482015,
+        -6146.761727667032
+      ],
+      "size": [
+        400,
+        862
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "🖼️图像1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 15
+        },
+        {
+          "name": "🖼️图像2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 16
+        },
+        {
+          "name": "🖼️图像3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 17
+        },
+        {
+          "name": "🖼️图像4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像7",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像8",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🎬视频1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🎬视频2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🔊音频1",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "🔊音频2",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "🔗队列处理器",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "💬回复文本",
+          "type": "STRING",
+          "links": [
+            18
+          ]
+        },
+        {
+          "name": "📋完整对话历史",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "🔢使用的种子",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "Dapao_LlamaChat"
+      },
+      "widgets_values": [
+        "gemma-4-26b-a4b-it-heretic.q3_k_s.gguf",
+        "Gemma4",
+        "mmproj-gemma-4-26B-A4B-it-BF16.gguf",
+        8192,
+        -1,
+        256,
+        1344,
+        "You are a helpful assistant.",
+        "详细分析这三张图片的不同",
+        "images",
+        10,
+        1120,
+        0,
+        "固定种子",
+        1024,
+        0.7,
+        0.9,
+        40,
+        1.1,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "id": 13,
+      "type": "LoadImage",
+      "pos": [
+        1148.3504950565869,
+        -6138.452647657892
+      ],
+      "size": [
+        264.34536508836686,
+        528.4049070660876
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            15
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "3aa1f56cf10921dbda76ca3094456d71.png",
+        "image"
+      ],
+      "color": "#2b9684",
+      "bgcolor": "#178270"
+    },
+    {
+      "id": 14,
+      "type": "LoadImage",
+      "pos": [
+        1435.7213973636592,
+        -6124.417561075474
+      ],
+      "size": [
+        260.57560848061144,
+        487.40880395674776
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "32671a93bda998f11a5b7b2bb501c2ab.jpg",
+        "image"
+      ],
+      "color": "#2b9684",
+      "bgcolor": "#178270"
+    },
+    {
+      "id": 15,
+      "type": "LoadImage",
+      "pos": [
+        1723.4377507418765,
+        -6126.407474222831
+      ],
+      "size": [
+        243.61170374571225,
+        492.59221929241176
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "8042fd55d5f059988d093f44b1cd335a.jpg",
+        "image"
+      ],
+      "color": "#2b9684",
+      "bgcolor": "#178270"
+    },
+    {
+      "id": 16,
+      "type": "easy showAnything",
+      "pos": [
+        2401.2261941584716,
+        -6146.761727667032
+      ],
+      "size": [
+        371.88715333455275,
+        841.2654703370654
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "easy showAnything"
+      },
+      "widgets_values": [
+        "这三张图片虽然都以“美丽的女性”为核心主体，但在**风格定位、色彩美学、叙事逻辑以及视觉构图**上有着显著的区别。我们可以从以下四个维度进行详细对比分析：\n\n### 1. 风格定位 (Style Positioning)\n* **第一张：现代甜美风 (Modern Sweet/Idol Style)**\n    * 这是一张典型的“偶像感”或“写真感”照片。通过猫耳发箍、学院风制服（衬衫+百褶裙）来营造一种青春、可爱、无攻击性的形象。它接近于现代社交媒体上的网红写真或日系/中系甜美风格。\n* **第二张：奇幻超现实风 (Fantasy Surrealism)**\n    * 这张图脱离了现实生活的逻辑，进入了“艺术想象”领域。将人物置于巨大的沙漏之中，并伴有飞鸟，营造出一种梦幻、空灵且带有哲理色彩的意境（如：时间、生命、永恒）。\n* **第三张：古典华丽风 (Classical/Traditional Elegance)**\n    * 这张图走的是“古风”或“汉服美学”路线。通过精致的发髻、复杂的金属发饰以及具有文化底蕴的面具，展现出一种庄重、高贵且带有神秘感的东方古典美。\n\n### 2. 色彩美学 (Color Palette)\n* **第一张：明亮自然色 (Bright & Natural)**\n    * 色调以白色（衬衫）、红色（领结/裙子）和背景的自然绿、灰为主。色彩对比度适中，整体感觉干净、清爽，光线接近于户外的自然散射光。\n* **第二张：暖金与深邃色 (Warm Gold & Deep Shadows)**\n    * 采用了极具戏剧性的色彩方案。沙漏中的金黄色细沙与人物皮肤的暖色调形成对比，而背景则是深沉的暗调（黑/深棕）。这种“明暗对比法”（Chiaroscuro）增强了画面的纵深感和神秘感。\n* **第三张：沉稳雅致色 (Muted & Sophisticated)**\n    * 色调偏向于深蓝色、紫色以及金属质感的银色/金色。色彩饱和度较低，但质感很高，给人一种沉稳、典雅且不失华丽的感觉，符合古典美学的审美习惯。\n\n### 3. 叙事逻辑与情感 (Narrative & Emotion)\n* **第一张：日常记录 (Daily Life)**\n    * 情感是直白的“可爱”。它没有复杂的背景故事，就像是一个女孩在公园散步时的抓拍，传达的是一种轻松、愉悦的日常情绪。\n* **第二张：寓言叙事 (Allegorical Narrative)**\n    * 情感是“深邃与孤独”。沙漏象征着时间的流逝，人物仰望飞鸟的神情带着一丝对自由或未知的渴望。它像是一个童话故事的片段，引发观众思考时间与生命的意义。\n* **第三张：角色演绎 (Character Acting)**\n    * 情感是“庄严与神秘”。人物手持面具，眼神坚定且带有某种仪式感。它不像是在记录生活，而是在展示一个特定的历史角色或神话人物，传达出一种文化底蕴带来的厚重感。\n\n### 4. 视觉构图 (Composition)\n* **第一张：中景人像 (Medium Shot)**\n    * 标准的人物写真构图，重点在于面部表情和服装细节，背景做了虚化处理（大光圈效果），使主体非常突出。\n* **第二张：全景/环境人像 (Environmental Portrait)**\n    * 采用了宏大的空间构图。沙漏这一巨大的几何形体占据了画面的核心，将人物包裹其中，形成了一种“人在景观中”的视觉冲击力，强调了比例的悬殊。\n* **第三张：特写/近景人像 (Close-up/Portrait)**\n    * 构图非常紧凑，焦点集中在面部、发饰以及手中的面具上。这种构图方式极大地增强了细节的精致度，让观众不得不去观察每一个纹路和材质。\n\n---\n\n### **总结对比表**\n\n| 维度 | 第一张 (甜美系) | 第二张 (奇幻系) | 第三张 (古典系) |\n| :--- | :--- | :--- | :--- |\n| **核心关键词** | 青春、可爱、日常 | 梦幻、时间、超现实 | 高贵、神秘、传统 |\n| **视觉焦点** | 面部表情与制服 | 沙漏与空间"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "easy showAnything",
+      "pos": [
+        704.6134364849986,
+        -5295.18554980499
+      ],
+      "size": [
+        371.88715333455275,
+        841.2654703370654
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "easy showAnything"
+      },
+      "widgets_values": [
+        "一段约15秒的时尚生活感短片。画面位于一个装修现代、色调简约的室内空间，背景是干净的浅灰色墙面和带有嵌入式射灯的天花板，光线柔和而均匀。\n\n一位留着黑色长发、气质清冷的年轻女孩正对着镜头进行时尚展示。她身穿一件米白色的长袖廓形T恤，胸前印有一个醒目的蓝色海星图案，下搭浅蓝色高腰牛仔裤，整体风格随性且具有潮流感。起初，她神情淡然，双臂微微抬起，右手轻轻抚摸着头顶的一副黑色墨镜。\n\n随着节奏的变化，女孩的神态变得更加自信且富有张力。镜头捕捉到她略带挑衅又酷飒的眼神，她突然双手撑在头两侧，像是要整理发型，又像是随性的动作。紧接着，一个极具动感的瞬间爆发——她猛地左右甩动头部，浓密的黑发如黑色绸缎般在空中剧烈飞舞、散开，形成一种充满生命力的视觉冲击。\n\n整个画面色彩明亮且高级，呈现出一种高品质的电影感质感。环境音是轻快、律动感强的时尚背景音乐，伴随着女孩甩头动作带来的微弱风声，营造出一种既时髦又充满活力的氛围。"
+      ]
+    },
+    {
+      "id": 21,
+      "type": "Dapao_LlamaChat",
+      "pos": [
+        270.5083058602996,
+        -5310.8697611902835
+      ],
+      "size": [
+        400,
+        862
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "🖼️图像1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像5",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像7",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🖼️图像8",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🎬视频1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 25
+        },
+        {
+          "name": "🎬视频2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "🔊音频1",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "🔊音频2",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "🔗队列处理器",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "📝系统提示词",
+          "type": "STRING",
+          "widget": {
+            "name": "📝系统提示词"
+          },
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "💬回复文本",
+          "type": "STRING",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "📋完整对话历史",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "🔢使用的种子",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "Dapao_LlamaChat"
+      },
+      "widgets_values": [
+        "gemma-4-26b-a4b-it-heretic.q3_k_s.gguf",
+        "Gemma4",
+        "mmproj-gemma-4-26B-A4B-it-BF16.gguf",
+        32768,
+        -1,
+        256,
+        1344,
+        "You are a helpful assistant.",
+        "",
+        "video",
+        50,
+        1120,
+        0,
+        "随机种子",
+        32768,
+        0.7,
+        0.9,
+        40,
+        1.1,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "id": 22,
+      "type": "CR Text",
+      "pos": [
+        -162.9364002198293,
+        -5287.34288237607
+      ],
+      "size": [
+        409.60175856778324,
+        831.4980820515693
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "文本",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "文本",
+          "name": "text",
+          "type": "*",
+          "links": [
+            23
+          ]
+        },
+        {
+          "label": "显示帮助",
+          "name": "show_help",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "文本",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "CR Text"
+      },
+      "widgets_values": [
+        "【视频反推提示词生成器 - 元指令】\n元指令目的： 用户上传一段视频（任意时长），AI观看/分析后，反向推导出一段详尽、生动、纯中文的自然语言描述，作为即梦2.0等新型文生视频模型的高质量提示词。同时对原视频进行合理的艺术优化与提炼。\n\n角色设定\n你是一位世界顶级的AI视频逆向解析大师，同时也是一位全能的音视频导演。你拥有两项核心超能力：\n\n第一，你拥有极其敏锐的视觉拆解能力，能够从任何一段视频中精准提取出主体细节、环境氛围、光影特征、镜头语言、运动轨迹、色彩风格、声音元素和叙事节奏等所有关键信息。\n\n第二，你精通文生视频模型（尤其是即梦2.0）的提示词偏好，能够将拆解出的信息重新组织为一段连贯、生动、富有画面感的自然语言描述，使模型能够高度还原甚至超越原视频的视觉效果。\n\n你不是简单的\"看到什么写什么\"，你是在理解原视频导演意图的基础上，用最优的提示词语言重新\"编剧\"这段画面。\n\n核心任务目标\n接收用户上传的视频（任意时长、任意类型）。\n深度分析视频的所有视听元素。\n将分析结果转化为一段（或按需分段）连贯、详尽、纯中文的自然语言提示词。\n在忠实还原原视频核心内容的基础上，进行合理的艺术优化——补全细节、强化氛围、提升画面质感描述，使生成的提示词\"比原视频描述得更好\"。\n根据原视频实际时长灵活调整提示词的信息密度和节奏。\n行为约束与规则\n一、详尽自然语言原则（最高优先级）\n严禁使用标签堆砌式写法（如\"赛博朋克，霓虹灯，雨天，4K\"）。所有描述必须融合在连贯、生动的自然语言句子中，像撰写电影文学剧本一样书写提示词。\n\n二、六维逆向解析框架（必选）\n对视频的每一个关键段落，必须从以下六个维度进行拆解并融入描述：\n\n主体细节： 人物外貌、服饰、表情、姿态；或物体的材质、形态、纹理等。\n环境与氛围： 场景类型、空间层次、天气、季节、整体情绪基调。\n光影与色彩： 光源方向、光质（硬光/柔光）、色温、主色调、对比度风格。\n镜头语言与构图： 景别（特写/中景/远景）、机位角度（俯拍/仰拍/平视）、构图方式（三分法/对称/引导线）。\n运动与动态： 镜头运动（推/拉/摇/移/跟/升降/手持晃动）、主体动作、速度节奏（慢动作/正常/快切）。\n声音与对白（如有）： 环境音、背景音乐风格、对白台词、旁白内容。如果原视频有人物说话，必须将台词以引号形式嵌入描述流中。\n三、音画同步集成\n如果原视频包含对白、旁白或明显的声音元素：\n\n将具体台词或旁白无缝嵌入视觉描述中，不要单独分离。\n对白格式：……她转过头，微笑着说道：\"今天的日落真美。\"\n旁白格式：……伴随着画面缓缓展开，一个温暖的画外音（旁白）响起：\"每一段旅程，都从第一步开始。\"\n如果原视频有对白但听不清，根据画面情境合理创作符合语境的台词。\n四、时长自适应策略\n短视频（≤15秒）： 输出一段紧凑完整的描述段落。\n中等视频（15秒~60秒）： 输出一段连贯描述，内部按时间线自然过渡，用\"随后\"\"紧接着\"\"画面切换到\"等过渡词串联。\n长视频（>60秒）： 将视频拆分为多个关键段落，每个段落输出一段独立的提示词描述，并标注建议时长（如\"【第一段 约10秒】\"），方便用户分段生成后拼接。\n五、智能优化原则\n你不是原样复述视频，你要在忠实原片的基础上做以下优化：\n\n补全模糊细节： 原视频画质不清或细节不足的地方，合理脑补并补全。\n强化氛围描写： 加入更丰富的感官描述（光线的质感、空气中的颗粒、材质的反光等）。\n优化镜头语言： 如果原视频镜头平淡，可建议更有表现力的镜头运动方式。\n保持核心不变： 优化不等于篡改。原视频的主题、情绪、核心内容必须忠实保留。\n六、用户意图优先\n如果用户在上传视频时附带了额外说明（如\"帮我把风格改成水墨画风\"、\"去掉里面的人物只保留风景\"、\"把白天改成夜晚\"），必须优先执行用户的修改指令，在反推基础上融合用户需求。\n\n七、语言要求\n输出必须是纯正、流畅、富有画面感和文学质感的简体中文。\n\n输出格式要求\n短/中视频（≤60秒）\n直接输出一段连贯的中文自然语言段落，画面与声音描述融为一体，不分模块、不加小标题。段落开头自然点明视频的整体基调和时长感。\n\n长视频（>60秒）\n<TEXT>\n【第一段 约XX秒】\n（一段连贯的自然语言描述）\n【第二段 约XX秒】\n（一段连贯的自然语言描述）\n……依此类推\n每段描述独立完整，可直接作为单条提示词使用。\n\n示例\n用户上传： 一段8秒的视频——雨天街头，一个女孩撑伞回头微笑。\n\nAI反推优化后的提示词输出：\n\n一段约8秒的电影感短片。细密的雨丝斜斜落下，打在东京老街昏黄的石板路上，溅起细碎的水雾。街道两旁是挂着暖色灯笼的居酒屋，霓虹招牌的光晕在雨幕中晕染开来，形成柔和的红橙色光斑。一位身穿米白色风衣、内搭深色高领毛衣的年轻女孩，右手撑着一把透明雨伞，独自走在街道中央偏右的位置。镜头以中景跟拍她的背影，能看到雨滴在透明伞面上汇聚成小溪流淌而下。忽然，她像是感应到什么，脚步微顿，缓缓回过头来——镜头在这一刻轻轻推近至近景——她的嘴角微微上扬，露出一个带着些许羞涩又温暖的微笑，几缕被雨雾打湿的碎发贴在脸颊旁，眼眸中映着身后灯笼的暖光。整个画面笼罩在一层柔和的暖黄与冷蓝交织的色调中，浅景深将背景虚化为一片流动的光斑。环境音是雨滴落在伞面和石板上的清脆声响，远处隐约传来居酒屋里的人声和风铃的叮当声。"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "VHS_LoadVideo",
+      "pos": [
+        -500.71206038370013,
+        -5295.327674150936
+      ],
+      "size": [
+        317.5190659661373,
+        853.2274629628065
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "批次管理",
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "label": "视频",
+          "name": "video",
+          "type": "COMBO",
+          "widget": {
+            "name": "video"
+          },
+          "link": null
+        },
+        {
+          "label": "强制帧率",
+          "name": "force_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "force_rate"
+          },
+          "link": null
+        },
+        {
+          "label": "自定义宽度",
+          "name": "custom_width",
+          "type": "INT",
+          "widget": {
+            "name": "custom_width"
+          },
+          "link": null
+        },
+        {
+          "label": "自定义高度",
+          "name": "custom_height",
+          "type": "INT",
+          "widget": {
+            "name": "custom_height"
+          },
+          "link": null
+        },
+        {
+          "label": "帧数读取上限",
+          "name": "frame_load_cap",
+          "type": "INT",
+          "widget": {
+            "name": "frame_load_cap"
+          },
+          "link": null
+        },
+        {
+          "label": "跳过前X帧",
+          "name": "skip_first_frames",
+          "type": "INT",
+          "widget": {
+            "name": "skip_first_frames"
+          },
+          "link": null
+        },
+        {
+          "label": "间隔",
+          "name": "select_every_nth",
+          "type": "INT",
+          "widget": {
+            "name": "select_every_nth"
+          },
+          "link": null
+        },
+        {
+          "label": "格式",
+          "name": "format",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            25
+          ]
+        },
+        {
+          "label": "帧计数",
+          "name": "frame_count",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "label": "音频",
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "label": "视频信息",
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": null
+        }
+      ],
+      "title": "加载视频",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "widgets_values": {
+        "video": "微信视频2026-03-07_160009_524.mp4",
+        "force_rate": 18,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 15,
+        "select_every_nth": 1,
+        "format": "AnimateDiff",
+        "choose video to upload": "image",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "微信视频2026-03-07_160009_524.mp4",
+            "type": "input",
+            "format": "video/mp4",
+            "force_rate": 18,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 0,
+            "skip_first_frames": 15,
+            "select_every_nth": 1
+          }
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": "MarkdownNote",
+      "pos": [
+        -1151.7325248591646,
+        -6109.007263879213
+      ],
+      "size": [
+        513.9507480139146,
+        626.4415611602635
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "大炮工作流使用说明",
+      "properties": {
+        "ue_properties": {
+          "version": "7.5.2",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "# 🌈              资源说明            🌈\n---\n# ⭐所有免费资源⭐\n# 👉[免费资源](https://dapao-ai.netlify.app/) 👈点击跳转（整合包/公开课/云端）\n\n---\n\n# 🦁大炮满血整合包下载地址🦁\n## 👉[满血整合包](https://wxuyk58beb5.feishu.cn/docx/TJF1dpepNoHtsMxP5MfcNJhnnSf) 👈点击跳转\n（含模型和环境包 300+工作流一键直出）\n\n---\n\n# 🌈跑不动的可以考虑用我的云端🌈\n\n## 👉[仙宫满血云端](https://www.xiangongyun.com/image/detail/5b5aa403-8e9c-4a81-94a3-ce9a13febb47)👈点击跳转\n\n## ⭐RH平台也有我大部分工作流：\n\n## 👉[RH最新工作流](https://www.runninghub.cn/user-center/1843821604546498561/userPost?inviteCode=kol01-rh138)👈点击跳转\n\n\n---\n\n# 🎥我的所有视频🎥\n## -- 💻[bilibili](https://space.bilibili.com/397686377?spm_id_from=333.33.0.0)👈点击跳转 -- 💻[抖音](https://www.douyin.com/user/MS4wLjABAAAAHSDoiXKglmJvAqDOrjZONAx42I_BGnbcHX51hStBIw_LJILooUMeI2Had3Xp5xW2?from_tab_name=main&vid=7517850368684903717)👈点击跳转\n\n---\n\n# 🥩我的B站comfyui免费课🥩\n## -- 🍱[保姆级comfyui入门公开课2026版](https://my.feishu.cn/wiki/OKxiwKkVNiSzLbkZBE5crhTKnQc)👈点击跳转\n# 🥘本工作流演示说明🥘\n\n## -- 🥨[大炮B站主页](https://space.bilibili.com/397686377)👈点击跳转\n"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 27,
+      "type": "Note Plus (mtb)",
+      "pos": [
+        -1165.6085234936286,
+        -5320.004317710632
+      ],
+      "size": [
+        531.6835465291026,
+        447
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "css": "/** here you can write css**/\nh1 {\n    color: whitesmoke;\n}",
+        "theme": "one_dark",
+        "ue_properties": {
+          "version": "7.5.2",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "# <span style=\"font-family: 'Microsoft YaHei'; font-weight: bold; font-size: 40px; color: #FFAB3B;\">🏄‍炮老师全套资料链接🏄‍</span>\n\n## 👉 https://dapao-ai.netlify.app/ 👈\n\n  <img style=\"max-width: 100%; height: auto;\" alt=\"描述图片内容\" src=\"https://s1.imagehub.cc/images/2025/12/14/758bbbb249032a79cb85d07026354752.md.jpg\">"
+      ],
+      "color": "#8e2bc3",
+      "bgcolor": "#3a124f",
+      "shape": 2
+    }
+  ],
+  "links": [
+    [
+      11,
+      4,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      12,
+      11,
+      0,
+      5,
+      0,
+      "STRING"
+    ],
+    [
+      14,
+      3,
+      0,
+      11,
+      8,
+      "LLAMA_CAPTION_OPTIONS"
+    ],
+    [
+      15,
+      13,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      14,
+      0,
+      12,
+      1,
+      "IMAGE"
+    ],
+    [
+      17,
+      15,
+      0,
+      12,
+      2,
+      "IMAGE"
+    ],
+    [
+      18,
+      12,
+      0,
+      16,
+      0,
+      "STRING"
+    ],
+    [
+      19,
+      21,
+      0,
+      20,
+      0,
+      "STRING"
+    ],
+    [
+      23,
+      22,
+      0,
+      21,
+      13,
+      "STRING"
+    ],
+    [
+      25,
+      25,
+      0,
+      21,
+      8,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "提示词反推",
+      "bounding": [
+        -555.0665446371534,
+        -6230.237228265302,
+        1611.2531327505183,
+        817.5544163589617
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "多模态智能对话",
+      "bounding": [
+        1138.3504950565869,
+        -6224.028394333698,
+        1649.651741325326,
+        945.6
+      ],
+      "color": "#b2750a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "🐰Gemma4开源 ComfyUI本地节点调用全攻略使用指南26-04-15",
+      "bounding": [
+        -552.8828571595674,
+        -6425.076764901216,
+        3605.581367392898,
+        149.06831955922735
+      ],
+      "color": "#3f789e",
+      "font_size": 120,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "节点地址：https://github.com/paolaoshi/ComfyUI-llama_Dapao",
+      "bounding": [
+        -559.4341136061167,
+        -4402.911599860445,
+        2433.9871441689365,
+        109.57777777777846
+      ],
+      "color": "#3571e9",
+      "font_size": 80,
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "视频反推",
+      "bounding": [
+        -563.1511515057745,
+        -5386.539498933815,
+        1649.651741325326,
+        945.6
+      ],
+      "color": "#62bff9",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "title": "🐝快乐学习  拥抱AI🙈",
+      "bounding": [
+        -1168.0196342341646,
+        -6219.183045129213,
+        550.8833217163101,
+        846.8870224442762
+      ],
+      "color": "#14b7cc",
+      "font_size": 40,
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "title": "🐧微信：paolaoshiAICG🐧",
+      "bounding": [
+        -1151.4776231757064,
+        -5467.418958104202,
+        518.6842651367188,
+        80
+      ],
+      "color": "#df6c20",
+      "font_size": 42,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "ds": {
+      "scale": 0.3719008264462857,
+      "offset": [
+        2442.8094021204056,
+        7213.027892214681
+      ]
+    },
+    "frontendVersion": "1.43.1",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

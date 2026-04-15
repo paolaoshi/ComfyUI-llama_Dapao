@@ -1,7 +1,7 @@
 [project]
 name = "Dapao-Toolbox"
 description = "集成 Google Gemma 4 与阿里 Qwen 3.5 最新模型，为 ComfyUI 提供原生 LLM 调用能力，支持文本生成、图像理解及多模态工作流编排。"
-version = "1.1.2"
+version = "1.1.3"
 license = { file = "LICENSE" }
 
 [project.urls]
