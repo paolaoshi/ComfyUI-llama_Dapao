@@ -35,13 +35,6 @@ GROUP_KEYS = ("A", "B", "C", "D")
 MISSING_STRATEGIES = ["严格报错", "单图复用", "末张补齐", "忽略缺失组"]
 TASK_FAILURE_STRATEGIES = ["失败占位继续", "跳过失败继续", "任一失败中断"]
 IMAGE_INFERENCE_MODES = ["逐条推理", "单次批量请求"]
-DEFAULT_GROUP_ROLES = {
-    "A": "目标图",
-    "B": "参考图",
-    "C": "补充参考",
-    "D": "风格参考",
-}
-
 DEFAULT_SYSTEM_PROMPT = """你是一个专业的批量图像编辑提示词专家。你会严格根据每一组已对齐图片和用户元指令，为当前编号图片生成一个专属提示词。"""
 
 DEFAULT_META_INSTRUCTION = """请根据当前组图片生成一个适合下游图像生成/图像编辑模型使用的最终提示词。
@@ -195,14 +188,10 @@ class Dapao_LlamaBatchPrompt:
                 "🔢图像最大token": ("INT", {"default": 1344, "min": 1, "max": 8192, "step": 1}),
                 "📝系统提示词": ("STRING", {"default": DEFAULT_SYSTEM_PROMPT, "multiline": True}),
                 "🧾元指令": ("STRING", {"default": DEFAULT_META_INSTRUCTION, "multiline": True}),
-                "🏷️A组角色": ("STRING", {"default": DEFAULT_GROUP_ROLES["A"], "multiline": False}),
-                "🏷️B组角色": ("STRING", {"default": DEFAULT_GROUP_ROLES["B"], "multiline": False}),
-                "🏷️C组角色": ("STRING", {"default": DEFAULT_GROUP_ROLES["C"], "multiline": False}),
-                "🏷️D组角色": ("STRING", {"default": DEFAULT_GROUP_ROLES["D"], "multiline": False}),
-                "📂A组文件夹": ("STRING", {"default": "", "multiline": False}),
-                "📂B组文件夹": ("STRING", {"default": "", "multiline": False}),
-                "📂C组文件夹": ("STRING", {"default": "", "multiline": False}),
-                "📂D组文件夹": ("STRING", {"default": "", "multiline": False}),
+                "📂A组文件夹": ("STRING", {"default": "", "multiline": False, "advanced": True}),
+                "📂B组文件夹": ("STRING", {"default": "", "multiline": False, "advanced": True}),
+                "📂C组文件夹": ("STRING", {"default": "", "multiline": False, "advanced": True}),
+                "📂D组文件夹": ("STRING", {"default": "", "multiline": False, "advanced": True}),
                 "🧩缺失处理策略": (MISSING_STRATEGIES, {"default": "严格报错"}),
                 "🔢无图默认数量": ("INT", {"default": 1, "min": 1, "max": 100, "step": 1}),
                 "🛡️多图模式最大提示词数量": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
@@ -359,7 +348,7 @@ class Dapao_LlamaBatchPrompt:
         return cls._fallback_item(items, strategy)
 
     @classmethod
-    def _build_alignment(cls, groups, roles, strategy, max_prompt_count=0):
+    def _build_alignment(cls, groups, strategy, max_prompt_count=0):
         anchors = groups["A"]
         if not anchors:
             raise ValueError("检测到 B/C/D 组有图片，但 A组没有图片。图像对齐模式必须连接 A组图像或填写 A组文件夹；完全无图时会自动进入文本批量模式。")
@@ -375,7 +364,6 @@ class Dapao_LlamaBatchPrompt:
             selected = {"A": anchor}
             row_groups = {
                 "A": {
-                    "role": roles["A"],
                     "match_method": "anchor",
                     "image": anchor.to_public_dict(),
                 }
@@ -385,7 +373,6 @@ class Dapao_LlamaBatchPrompt:
                 match, method = cls._match_item(anchor, items, strategy)
                 selected[group] = match
                 row_groups[group] = {
-                    "role": roles[group],
                     "match_method": method,
                     "image": match.to_public_dict() if match else None,
                 }
@@ -402,7 +389,7 @@ class Dapao_LlamaBatchPrompt:
         return rows, original_anchor_count, limit
 
     @staticmethod
-    def _build_row_user_text(meta_instruction, row, total_count, roles):
+    def _build_row_user_text(meta_instruction, row, total_count):
         lines = [
             (meta_instruction or "").strip(),
             "",
@@ -411,16 +398,15 @@ class Dapao_LlamaBatchPrompt:
         ]
         for group in GROUP_KEYS:
             image = row["groups"][group]["image"]
-            role = roles[group]
             if image:
-                lines.append(f"{group}组（{role}）：{image['name']}，匹配方式：{row['groups'][group]['match_method']}")
+                lines.append(f"{group}组：{image['name']}，匹配方式：{row['groups'][group]['match_method']}")
             else:
-                lines.append(f"{group}组（{role}）：未提供或已忽略")
+                lines.append(f"{group}组：未提供或已忽略")
         lines.extend(["", "请只输出当前这一项的最终提示词文本，不要输出编号、标题、Markdown、JSON或解释。"])
         return "\n".join(line for line in lines if line is not None)
 
     @staticmethod
-    def _build_batch_user_text(meta_instruction, rows, roles):
+    def _build_batch_user_text(meta_instruction, rows):
         lines = [
             (meta_instruction or "").strip(),
             "",
@@ -431,11 +417,10 @@ class Dapao_LlamaBatchPrompt:
             lines.append(f"任务 {row['index']}：")
             for group in GROUP_KEYS:
                 image = row["groups"][group]["image"]
-                role = roles[group]
                 if image:
-                    lines.append(f"- {group}组（{role}）：{image['name']}，匹配方式：{row['groups'][group]['match_method']}")
+                    lines.append(f"- {group}组：{image['name']}，匹配方式：{row['groups'][group]['match_method']}")
                 else:
-                    lines.append(f"- {group}组（{role}）：未提供或已忽略")
+                    lines.append(f"- {group}组：未提供或已忽略")
         lines.extend([
             "",
             "【强制输出格式】",
@@ -458,8 +443,9 @@ class Dapao_LlamaBatchPrompt:
     def _detect_text_prompt_count(*texts, default_count=1):
         joined = "\n".join(str(text or "") for text in texts)
         patterns = [
-            r"(\d{1,3})\s*(?:组|个|条|套|份|段)\s*(?:提示词|prompt|Prompt)?",
-            r"(?:生成|输出|写|给我|帮我)\s*(\d{1,3})\s*(?:组|个|条|套|份|段)",
+            r"(\d{1,3})\s*个\s*(?:提示词|prompt|Prompt)",
+            r"(\d{1,3})\s*(?:组|条|套|份|段)\s*(?:提示词|prompt|Prompt)",
+            r"(?:生成|输出|返回|写|给我|帮我|需要|请)\D{0,20}?(\d{1,3})\s*(?:组|条|套|份|段)\s*(?:提示词|prompt|Prompt)?",
             r"(\d{1,3})\s*(?:prompts?|Prompts?)",
         ]
         for pattern in patterns:
@@ -467,11 +453,17 @@ class Dapao_LlamaBatchPrompt:
             if match:
                 return max(1, min(100, int(match.group(1))))
 
-        chinese_match = re.search(r"([一二两三四五六七八九十]{1,3})\s*(?:组|个|条|套|份|段)", joined)
-        if chinese_match:
-            value = _chinese_number_to_int(chinese_match.group(1))
-            if value:
-                return max(1, min(100, value))
+        chinese_patterns = [
+            r"([一二两三四五六七八九十]{1,3})\s*个\s*(?:提示词|prompt|Prompt)",
+            r"([一二两三四五六七八九十]{1,3})\s*(?:组|条|套|份|段)\s*(?:提示词|prompt|Prompt)",
+            r"(?:生成|输出|返回|写|给我|帮我|需要|请)\D{0,20}?([一二两三四五六七八九十]{1,3})\s*(?:组|条|套|份|段)\s*(?:提示词|prompt|Prompt)?",
+        ]
+        for pattern in chinese_patterns:
+            match = re.search(pattern, joined)
+            if match:
+                value = _chinese_number_to_int(match.group(1))
+                if value:
+                    return max(1, min(100, value))
 
         return max(1, min(100, int(default_count or 1)))
 
@@ -577,7 +569,7 @@ class Dapao_LlamaBatchPrompt:
         }
 
     @staticmethod
-    def _build_messages(system_prompt, user_text, row=None, roles=None, max_side=1024):
+    def _build_messages(system_prompt, user_text, row=None, max_side=1024):
         messages = []
         if (system_prompt or "").strip():
             messages.append({"role": "system", "content": system_prompt.strip()})
@@ -591,7 +583,7 @@ class Dapao_LlamaBatchPrompt:
             item = row["selected"].get(group)
             if item is None:
                 continue
-            content.append({"type": "text", "text": f"{group}组（{roles[group]}）：{item.name}"})
+            content.append({"type": "text", "text": f"{group}组：{item.name}"})
             content.append(item.to_image_part(max_side))
         messages.append({"role": "user", "content": content})
         return messages
@@ -604,15 +596,35 @@ class Dapao_LlamaBatchPrompt:
             text = _strip_think_blocks(text)
         return self._clean_prompt(text), resp
 
-    def _run_row_task(self, llm, row, total_count, system_prompt, meta_instruction, roles, params, retry_count, think_mode, max_side):
-        user_text = self._build_row_user_text(meta_instruction, row, total_count, roles)
+    def _generate_single_text_only_prompt(self, llm, system_prompt, meta_instruction, params, prompt_index, total_count, existing_prompts, think_mode):
+        local_params = dict(params)
+        if "seed" in local_params:
+            local_params["seed"] = (int(local_params.get("seed") or 0) + prompt_index) % 0xFFFFFFFF
+        previous_text = "\n".join(f"- {prompt}" for prompt in existing_prompts if prompt)
+        user_text = "\n".join([
+            (meta_instruction or "").strip(),
+            "",
+            "【单条补齐要求】",
+            f"这是无图批量生成的第 {prompt_index}/{total_count} 条。",
+            "请只输出 1 条可直接给下游图像生成模型使用的完整提示词。",
+            "不要输出编号、标题、Markdown、JSON、解释或多余前后缀。",
+            "请尽量和已生成的提示词在构图、服装、光线、场景或镜头语言上有所区别。",
+            "",
+            "【已生成提示词】",
+            previous_text or "无",
+        ]).strip()
+        text, raw = self._call_llm(llm, self._build_messages(system_prompt, user_text), local_params, think_mode)
+        return self._clean_prompt(text), raw
+
+    def _run_row_task(self, llm, row, total_count, system_prompt, meta_instruction, params, retry_count, think_mode, max_side):
+        user_text = self._build_row_user_text(meta_instruction, row, total_count)
         started_at = time.time()
         last_error = None
         last_trace = ""
         for attempt in range(retry_count + 1):
             try:
                 encode_start = time.time()
-                messages = self._build_messages(system_prompt, user_text, row, roles, max_side)
+                messages = self._build_messages(system_prompt, user_text, row, max_side)
                 encode_seconds = time.time() - encode_start
                 infer_start = time.time()
                 prompt, raw = self._call_llm(llm, messages, params, think_mode)
@@ -670,7 +682,27 @@ class Dapao_LlamaBatchPrompt:
         raw_text, raw = self._call_llm(llm, self._build_messages(final_system, user_text), params, think_mode)
         prompts = self._extract_prompt_list(raw_text, prompt_count)
         if len(prompts) != prompt_count:
-            raise RuntimeError(f"无图文本模式要求输出 {prompt_count} 条提示词，但只解析到 {len(prompts)} 条。请在元指令中要求输出 JSON 字符串数组，或提高最大输出token。")
+            _log_info(f"无图文本模式一次请求只解析到 {len(prompts)}/{prompt_count} 条，开始逐条补齐。")
+            supplemental_responses = []
+            for prompt_index in range(len(prompts) + 1, prompt_count + 1):
+                prompt, supplemental_raw = self._generate_single_text_only_prompt(
+                    llm,
+                    final_system,
+                    meta_instruction,
+                    params,
+                    prompt_index,
+                    prompt_count,
+                    prompts,
+                    think_mode,
+                )
+                if not prompt:
+                    raise RuntimeError(f"无图文本模式第 {prompt_index}/{prompt_count} 条补齐失败，本地 Llama 返回内容为空。")
+                prompts.append(prompt)
+                supplemental_responses.append({
+                    "index": prompt_index,
+                    "response": supplemental_raw,
+                    "prompt": prompt,
+                })
 
         elapsed = time.time() - started
         full_response = {
@@ -680,6 +712,8 @@ class Dapao_LlamaBatchPrompt:
             "raw_response": raw,
             "parsed_text": raw_text,
             "prompt_count": prompt_count,
+            "count_source": "text_auto_or_default",
+            "supplemental_responses": supplemental_responses if len(prompts) == prompt_count and 'supplemental_responses' in locals() else [],
             "elapsed_seconds": round(elapsed, 3),
         }
         info = "\n".join([
@@ -736,13 +770,6 @@ class Dapao_LlamaBatchPrompt:
         elif seed_mode == "递减种子":
             seed = (seed - 1) % 0xFFFFFFFF
 
-        roles = {
-            "A": self._text_input_value(kwargs, "🏷️A组角色", DEFAULT_GROUP_ROLES["A"]),
-            "B": self._text_input_value(kwargs, "🏷️B组角色", DEFAULT_GROUP_ROLES["B"]),
-            "C": self._text_input_value(kwargs, "🏷️C组角色", DEFAULT_GROUP_ROLES["C"]),
-            "D": self._text_input_value(kwargs, "🏷️D组角色", DEFAULT_GROUP_ROLES["D"]),
-        }
-
         params = {
             "max_tokens": max_tokens,
             "temperature": temperature,
@@ -770,7 +797,7 @@ class Dapao_LlamaBatchPrompt:
                 self._clear_local_cache_if_needed(llm, handler_name)
             return result
 
-        rows, original_anchor_count, image_mode_limit = self._build_alignment(groups, roles, strategy, image_mode_max_prompts)
+        rows, original_anchor_count, image_mode_limit = self._build_alignment(groups, strategy, image_mode_max_prompts)
         total_count = len(rows)
         prompts = [""] * total_count
         raw_responses = []
@@ -779,7 +806,7 @@ class Dapao_LlamaBatchPrompt:
         _log_info(f"开始本地批量提示词生成：模型 {model_file}，任务 {total_count} 条，模式 {image_inference_mode}，缺失策略 {strategy}")
 
         if image_inference_mode == "单次批量请求":
-            batch_text = self._build_batch_user_text(meta_instruction, rows, roles)
+            batch_text = self._build_batch_user_text(meta_instruction, rows)
             batch_row = {
                 "index": 1,
                 "selected": {},
@@ -791,7 +818,7 @@ class Dapao_LlamaBatchPrompt:
                     item = row["selected"].get(group)
                     if item is None:
                         continue
-                    content_rows.append({"type": "text", "text": f"任务 {row['index']} - {group}组（{roles[group]}）：{item.name}"})
+                    content_rows.append({"type": "text", "text": f"任务 {row['index']} - {group}组：{item.name}"})
                     content_rows.append(item.to_image_part(max_side))
                 content_rows.append({"type": "text", "text": f"任务 {row['index']} 结束"})
             messages = []
@@ -825,7 +852,7 @@ class Dapao_LlamaBatchPrompt:
         else:
             abort_error = None
             for idx, row in enumerate(rows):
-                result = self._run_row_task(llm, row, total_count, system_prompt, meta_instruction, roles, params, retry_count, think_mode, max_side)
+                result = self._run_row_task(llm, row, total_count, system_prompt, meta_instruction, params, retry_count, think_mode, max_side)
                 task_results[idx] = result
                 row["prompt"] = result.get("prompt", "")
                 row["error"] = result.get("error", "")
@@ -874,7 +901,6 @@ class Dapao_LlamaBatchPrompt:
             "truncated_by_limit": bool(image_mode_limit > 0 and original_anchor_count > len(rows)),
             "anchor_group": "A",
             "missing_strategy": strategy,
-            "roles": roles,
             "sources": source_report,
             "seed": seed,
             "elapsed_seconds": round(elapsed_time, 3),
