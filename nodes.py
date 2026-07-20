@@ -3,7 +3,6 @@ import io
 import gc
 import json
 import base64
-import random
 
 import numpy as np
 import torch
@@ -12,7 +11,7 @@ from PIL import Image
 import folder_paths
 import comfy.model_management as mm
 
-from .gguf_layers import get_layer_count
+from .gguf_layers import get_layer_count, get_gguf_model_info
 from .cqdm import cqdm
 
 # ── LLM 文件夹注册 ──────────────────────────────────────────────────────────
@@ -98,6 +97,55 @@ CHAT_HANDLERS = [
     "LFM2-VL",
     "Granite-Docling",
 ]
+
+_QWEN_HANDLER_ARCHITECTURES = {
+    "Qwen2.5-VL": "qwen2vl",
+    "Qwen3-VL": "qwen3vl",
+    "Qwen3-VL-Thinking": "qwen3vl",
+    "Qwen3.5": "qwen35",
+    "Qwen3.5-Thinking": "qwen35",
+}
+
+_QWEN_ARCHITECTURE_HANDLERS = {
+    "qwen2vl": "Qwen2.5-VL",
+    "qwen3vl": "Qwen3-VL",
+    "qwen35": "Qwen3.5",
+}
+
+
+def _validate_multimodal_pair(model_path, model_file, handler_name, mmproj_path, mmproj_file):
+    """Reject incompatible model/handler/mmproj combinations before native loading."""
+    if not mmproj_path or handler_name == "None":
+        return
+
+    model_info = get_gguf_model_info(model_path)
+    mmproj_info = get_gguf_model_info(mmproj_path)
+    model_arch = model_info["architecture"]
+    expected_arch = _QWEN_HANDLER_ARCHITECTURES.get(handler_name)
+
+    if expected_arch and model_arch and model_arch != expected_arch:
+        recommended = _QWEN_ARCHITECTURE_HANDLERS.get(model_arch)
+        recommendation = f"，该主模型应选择“{recommended}”" if recommended else ""
+        raise ValueError(
+            "模型与对话处理器不匹配："
+            f"“{model_file}”的 GGUF 架构是 {model_arch}，"
+            f"当前处理器“{handler_name}”要求 {expected_arch}{recommendation}。"
+            "请同时选择与主模型同系列、同参数规模的 mmproj 文件。"
+        )
+
+    model_dimension = model_info["dimension"]
+    projection_dimension = mmproj_info["dimension"]
+    if (
+        model_dimension is not None
+        and projection_dimension is not None
+        and int(model_dimension) != int(projection_dimension)
+    ):
+        raise ValueError(
+            "主模型与 mmproj 文件不匹配："
+            f"“{model_file}”的嵌入维度是 {model_dimension}，"
+            f"“{mmproj_file}”的投影维度是 {projection_dimension}。"
+            "请选择与主模型同系列、同参数规模的 mmproj 文件。"
+        )
 
 # ── 模型状态管理 ─────────────────────────────────────────────────────────────
 class DapaoLlamaStorage:
@@ -213,8 +261,7 @@ class Dapao_LlamaChat:
                 "🎞️最大帧数": ("INT", {"default": 10, "min": 1, "max": 200, "step": 1}),
                 "📏图像最大边长": ("INT", {"default": 1120, "min": 64, "max": 4096, "step": 32}),
                 # ── 生成参数 ──
-                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF}),
-                "🎰随机化": (["固定种子", "随机种子", "递增种子", "递减种子"], {"default": "固定种子"}),
+                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
                 "📊最大输出token": ("INT", {"default": 1024, "min": 1, "max": 32768, "step": 1}),
                 "🌡️温度": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "🎯top_p": ("FLOAT", {"default": 0.9, "min": 0.0, "max": 1.0, "step": 0.01}),
@@ -250,6 +297,10 @@ class Dapao_LlamaChat:
         mmproj_path = None
         if mmproj_file and mmproj_file != "None":
             mmproj_path = os.path.join(folder_paths.models_dir, "LLM", mmproj_file)
+
+        _validate_multimodal_pair(
+            model_path, model_file, handler_name, mmproj_path, mmproj_file
+        )
 
         # ── n_gpu_layers 计算（与参考节点一致，含 1.55 系数）────────────────
         n_gpu_layers = -1
@@ -373,13 +424,40 @@ class Dapao_LlamaChat:
             pass
 
         # ── 加载 Llama ────────────────────────────────────────────────────────
-        llm = Llama(
-            model_path=model_path,
-            chat_handler=chat_handler,
-            n_gpu_layers=n_gpu_layers,
-            n_ctx=n_ctx,
-            verbose=False,
-        )
+        llm = None
+        try:
+            llm = Llama(
+                model_path=model_path,
+                chat_handler=chat_handler,
+                n_gpu_layers=n_gpu_layers,
+                n_ctx=n_ctx,
+                verbose=False,
+            )
+
+            # MTMD 默认延迟到首次推理才加载。这里提前验证，避免缓存无效处理器。
+            if chat_handler is not None and hasattr(chat_handler, "_init_mtmd_context"):
+                try:
+                    chat_handler._init_mtmd_context(llm)
+                except ValueError as gpu_error:
+                    if not getattr(chat_handler, "use_gpu", False):
+                        raise
+                    print("[大炮-llama] GPU 视觉编码器初始化失败，自动改用 CPU 重试")
+                    chat_handler.use_gpu = False
+                    try:
+                        chat_handler._init_mtmd_context(llm)
+                    except ValueError as cpu_error:
+                        raise ValueError(
+                            "多模态投影加载失败："
+                            f"主模型“{model_file}”，mmproj“{mmproj_file}”。"
+                            "请确认两者来自同一模型系列和参数规模，且 GGUF 文件完整。"
+                        ) from cpu_error
+        except Exception:
+            if chat_handler is not None and hasattr(chat_handler, "close"):
+                chat_handler.close()
+            if llm is not None and hasattr(llm, "close"):
+                llm.close()
+            raise
+
         DapaoLlamaStorage.llm = llm
         DapaoLlamaStorage.chat_handler = chat_handler
         DapaoLlamaStorage.current_config = {
@@ -408,7 +486,6 @@ class Dapao_LlamaChat:
         max_frames       = kwargs["🎞️最大帧数"]
         max_size         = kwargs["📏图像最大边长"]
         seed             = kwargs["🎲随机种子"]
-        seed_mode        = kwargs["🎰随机化"]
         max_tokens       = kwargs["📊最大输出token"]
         temperature      = kwargs["🌡️温度"]
         top_p            = kwargs["🎯top_p"]
@@ -431,14 +508,6 @@ class Dapao_LlamaChat:
 
         # 各 tensor 单独保留，不拼接（不同尺寸图片无法 cat）
         all_image_tensors = [t for t in image_slots + video_slots if t is not None]
-
-        # ── 种子处理 ──────────────────────────────────────────────────────────
-        if seed_mode == "随机种子":
-            seed = random.randint(0, 0xFFFFFFFF)
-        elif seed_mode == "递增种子":
-            seed = (seed + 1) % 0xFFFFFFFF
-        elif seed_mode == "递减种子":
-            seed = (seed - 1) % 0xFFFFFFFF
 
         # ── 加载或复用模型 ────────────────────────────────────────────────────
         need_load = DapaoLlamaStorage.llm is None
@@ -598,4 +667,3 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "Dapao_LlamaChat": "😶‍🌫️llama智能对话@炮老师的小课堂",
 }
-

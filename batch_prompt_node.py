@@ -6,7 +6,6 @@
 """
 
 import json
-import random
 import re
 import time
 import traceback
@@ -199,8 +198,7 @@ class Dapao_LlamaBatchPrompt:
                 "🛟失败重试次数": ("INT", {"default": 0, "min": 0, "max": 5, "step": 1}),
                 "🧪推理失败策略": (TASK_FAILURE_STRATEGIES, {"default": "失败占位继续"}),
                 "📏图像最大边长": ("INT", {"default": 1024, "min": 64, "max": 4096, "step": 32}),
-                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF}),
-                "🎰随机化": (["固定种子", "随机种子", "递增种子", "递减种子"], {"default": "固定种子"}),
+                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
                 "📊最大输出token": ("INT", {"default": 1024, "min": 1, "max": 32768, "step": 1}),
                 "🌡️温度": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "🎯top_p": ("FLOAT", {"default": 0.9, "min": 0.0, "max": 1.0, "step": 0.01}),
@@ -745,7 +743,6 @@ class Dapao_LlamaBatchPrompt:
         task_failure_strategy = self._text_input_value(kwargs, "🧪推理失败策略", "失败占位继续")
         max_side = max(64, min(4096, self._int_input_value(kwargs, "📏图像最大边长", 1024)))
         seed = self._int_input_value(kwargs, "🎲随机种子", 0)
-        seed_mode = self._text_input_value(kwargs, "🎰随机化", "固定种子")
         max_tokens = self._int_input_value(kwargs, "📊最大输出token", 1024)
         temperature = self._float_input_value(kwargs, "🌡️温度", 0.7)
         top_p = self._float_input_value(kwargs, "🎯top_p", 0.9)
@@ -762,13 +759,6 @@ class Dapao_LlamaBatchPrompt:
             task_failure_strategy = "失败占位继续"
         if image_inference_mode not in IMAGE_INFERENCE_MODES:
             image_inference_mode = "逐条推理"
-
-        if seed_mode == "随机种子":
-            seed = random.randint(0, 0xFFFFFFFF)
-        elif seed_mode == "递增种子":
-            seed = (seed + 1) % 0xFFFFFFFF
-        elif seed_mode == "递减种子":
-            seed = (seed - 1) % 0xFFFFFFFF
 
         params = {
             "max_tokens": max_tokens,

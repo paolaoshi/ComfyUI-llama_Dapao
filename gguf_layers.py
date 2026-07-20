@@ -78,7 +78,13 @@ def read_value_of_type(file_obj, array_type):
     raise ValueError(f"Unknown GGUF array item type: {array_type}")
 
 
-def get_layer_count(file_path):
+def get_gguf_metadata(file_path, keys):
+    """Read selected GGUF metadata keys without touching tensor data."""
+    wanted = set(keys)
+    if not wanted:
+        return {}
+
+    metadata = {}
     try:
         with open(file_path, "rb") as file_obj:
             if file_obj.read(4) != b"GGUF":
@@ -87,17 +93,43 @@ def get_layer_count(file_path):
             _version = read_u32(file_obj)
             _tensor_count = read_u64(file_obj)
             kv_count = read_u64(file_obj)
-            metadata = {}
 
             for _ in range(kv_count):
                 key = read_string(file_obj)
                 value = read_value(file_obj)
-                metadata[key] = value
-
-        for key, value in metadata.items():
-            if key.lower().endswith(".block_count"):
-                return int(value)
+                if key in wanted:
+                    metadata[key] = value
+                    if len(metadata) == len(wanted):
+                        break
     except Exception:
+        return {}
+
+    return metadata
+
+
+def get_gguf_model_info(file_path):
+    """Return the GGUF architecture and its LLM/projector output dimension."""
+    architecture = get_gguf_metadata(file_path, {"general.architecture"}).get(
+        "general.architecture"
+    )
+    if not architecture:
+        return {"architecture": None, "dimension": None}
+
+    dimension_key = (
+        "clip.vision.projection_dim"
+        if architecture == "clip"
+        else f"{architecture}.embedding_length"
+    )
+    dimension = get_gguf_metadata(file_path, {dimension_key}).get(dimension_key)
+    return {"architecture": architecture, "dimension": dimension}
+
+
+def get_layer_count(file_path):
+    info = get_gguf_model_info(file_path)
+    architecture = info["architecture"]
+    if not architecture:
         return None
 
-    return None
+    key = f"{architecture}.block_count"
+    value = get_gguf_metadata(file_path, {key}).get(key)
+    return int(value) if value is not None else None

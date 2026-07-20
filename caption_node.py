@@ -7,7 +7,6 @@ import os
 import io
 import gc
 import base64
-import random
 import re
 
 import numpy as np
@@ -94,8 +93,7 @@ class Dapao_LlamaCaption:
                 # ── 推理参数 ──
                 "📏图像最大边长": ("INT", {"default": 1120, "min": 64, "max": 4096, "step": 32}),
                 # ── 生成参数 ──
-                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF}),
-                "🎰随机化": (["固定种子", "随机种子", "递增种子", "递减种子"], {"default": "固定种子"}),
+                "🎲随机种子": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
                 "📊最大输出token": ("INT", {"default": 1024, "min": 1, "max": 32768, "step": 1}),
                 "🌡️温度": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 2.0, "step": 0.01}),
                 "🎯top_p": ("FLOAT", {"default": 0.9, "min": 0.0, "max": 1.0, "step": 0.01}),
@@ -132,7 +130,6 @@ class Dapao_LlamaCaption:
         extra_instruction= kwargs["💬附加指令"].strip()
         max_size         = kwargs["📏图像最大边长"]
         seed             = kwargs["🎲随机种子"]
-        seed_mode        = kwargs["🎰随机化"]
         max_tokens       = kwargs["📊最大输出token"]
         temperature      = kwargs["🌡️温度"]
         top_p            = kwargs["🎯top_p"]
@@ -142,14 +139,6 @@ class Dapao_LlamaCaption:
         force_offload    = kwargs["⚡推理后卸载模型"]
         extra_options    = kwargs.get("🍭反推额外选项", None)
         uid              = str(unique_id)
-
-        # ── 种子处理 ──────────────────────────────────────────────────────────
-        if seed_mode == "随机种子":
-            seed = random.randint(0, 0xFFFFFFFF)
-        elif seed_mode == "递增种子":
-            seed = (seed + 1) % 0xFFFFFFFF
-        elif seed_mode == "递减种子":
-            seed = (seed - 1) % 0xFFFFFFFF
 
         # ── 构建提示词（附加指令优先，为空时使用内置风格）────────────────────
         if extra_instruction:

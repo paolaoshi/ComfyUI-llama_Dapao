@@ -13,7 +13,7 @@
 #
 # 注意：不要用 pip install llama-cpp-python 安装 CPU 版本，GPU 推理速度差异极大
 
-# Python 标准库（无需安装）：os, io, gc, json, base64, random, struct, sys
+# Python 标准库（无需安装）：os, io, gc, json, base64, struct, sys
 
 # 第三方依赖（ComfyUI 环境通常已自带）
 numpy>=1.24.0
