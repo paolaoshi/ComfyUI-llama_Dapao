@@ -43,8 +43,24 @@ class H3Tests(unittest.TestCase):
         node = port.DapaoLocalH3Prompt
         self.assertEqual(node.INPUT_TYPES()["required"]["model"][0], "DAPAO_LOCAL_MODEL")
         self.assertEqual(tuple(node.RETURN_TYPES), ("STRING",) * 3)
-        self.assertEqual(len(port.SKILL_NAMES), 9)
+        original_skills = {
+            "3d-animation-short-generator", "brand-promo-video-generator",
+            "co-op-game-intro-generator", "h3-prompt-writing",
+            "handdrawn-live-video-generator", "minimalist-product-ad-generator",
+            "music-video-subtitle-generator", "paper-collage-explainer-generator",
+            "papercraft-stop-motion-explainer",
+        }
+        self.assertTrue(original_skills.issubset(port.SKILL_NAMES))
+        self.assertEqual(len(port.SKILL_NAMES), len(set(port.SKILL_NAMES)))
         self.assertIs(port.NODE_CLASS_MAPPINGS["DapaoLocalH3Prompt"], node)
+
+    def test_moss_custom_skill_execution(self):
+        skill = "moss-image-prompt-local"
+        self.assertIn(skill, port.SKILL_NAMES)
+        self.assertEqual(self.run_node(skill=skill), ("有效正文", skill, "t2va"))
+        self.route.assert_not_called()
+        messages = self.generate.call_args.args[1]
+        self.assertIn("Return exactly one cohesive MOSS-Image prompt", messages[0]["content"])
 
     def test_text_and_auto_skill(self):
         self.assertEqual(self.run_node(skill="auto"), ("有效正文", "h3-prompt-writing", "t2va"))
