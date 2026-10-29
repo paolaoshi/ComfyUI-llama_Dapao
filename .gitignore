@@ -1,0 +1,6 @@
+# Personal costume images/data are local-only, not part of plugin distribution.
+/resources/costume-gallery/
+/output/cloth-compression/
+# Local browser receipts can contain downloaded garment images/screenshots.
+/.playwright-cli/
+/output/playwright/costume-*.png

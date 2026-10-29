@@ -1,0 +1,15 @@
+/* Reuse pose gallery tokens and spacing; only garment-specific differences here. */
+.dapao-costume .dc-card { display:flex; flex-direction:column; text-align:left; gap:6px; }
+.dapao-costume .dc-card img { display:block; width:100%; aspect-ratio:2/3; object-fit:contain; background:#f2f2f2; border-radius:6px; }
+.dapao-costume .dc-card strong { font-size:13px; }.dapao-costume .dc-card small { font-size:11px; }
+.dc-tags { display:flex; flex-wrap:wrap; gap:5px; }.dc-tags span { background:#30363f; border:1px solid #465161; border-radius:5px; padding:3px 6px; font-size:12px; }
+.dc-language { display:flex; gap:8px; flex:none; }.dc-language button { flex:1; padding:7px 12px; min-height:34px; }
+.dc-language button[aria-pressed=true] { background:#2877bc; border-color:#83baff; }
+.dc-prompt { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.6 system-ui,sans-serif; background:#191c22; padding:10px; border-radius:7px; user-select:text; }
+.dapao-costume .dp-main { grid-template-columns:minmax(0,1fr) 360px; }
+.dapao-costume .dp-detail-image { height:300px; }
+.dapao-costume-node .dpn-grid { grid-auto-rows:minmax(100px,1fr); }
+.dapao-costume-node .dpn-message { max-height:64px; overflow:auto; }
+@media(max-width:760px) { .dapao-costume .dp-main { grid-template-columns:1fr; } }
+
+.dapao-costume-node .dc-language button[aria-pressed=true] { background:#2877bc; border-color:#83baff; }

@@ -1,0 +1,42 @@
+async (page) => {
+ await page.reload();
+ const data=await page.evaluate(async()=>{const r=await fetch('/dapao/face-gallery/catalog');if(!r.ok)throw Error('catalog not ready');return r.json()});
+ const first=data.items[0],second=data.items[1],root=page.locator('.dapao-face-node');
+ await root.locator('.dpn-card').first().waitFor();if(await root.locator('.dpn-card').count()!==6)throw Error('six presets');
+ await root.getByRole('button',{name:`${first.id} ${first.hair_zh}`,exact:true}).click();await page.waitForFunction(id=>window.testNode.widgets[0].value===id,first.id);
+ await root.getByRole('button',{name:'English',exact:true}).click();
+ const layout=async()=>{const ok=await root.evaluate(e=>{const b=s=>e.querySelector(s).getBoundingClientRect();return b('.dpn-grid').bottom<=b('.dpn-selected').top&&b('.df-language').bottom+8<=b('.dpn-open').top&&b('.dpn-open').bottom<=b('.dpn-footer').top&&b('.dpn-footer').bottom<=e.getBoundingClientRect().bottom&&e.scrollWidth<=e.clientWidth;});if(!ok)throw Error('layout overlap')};
+ for(const width of [360,430,600]){await page.evaluate(w=>{const s=[w,200];window.testNode.onResize(s);window.testNode.setSize(s)},width);await layout();}
+ await page.evaluate(()=>window.testNode.setSize([430,598]));await root.screenshot({path:'output/playwright/face-node.png'});
+ await root.getByRole('button',{name:/打开完整脸模库/}).click();
+ const dialog=page.locator('dialog.dapao-face'),detail=dialog.getByRole('complementary',{name:'脸模详情'}),search=dialog.getByRole('textbox',{name:'搜索脸模'});
+ await dialog.locator('.df-card').first().waitFor();
+ await dialog.getByRole('button',{name:'加载更多（剩余 1469）',exact:true}).click();if(await dialog.locator('.df-card').count()!==60)throw Error('pagination');
+ await dialog.getByRole('button',{name:'短发 · 727',exact:true}).click();await dialog.getByRole('combobox',{name:'素材类型'}).selectOption('styling');
+ const expected=data.items.filter(i=>i.hair_id==='short'&&i.section_id==='styling').length;
+ if(await dialog.locator('.dp-count').textContent()!==`${expected} 张`)throw Error('combined filters');
+ await dialog.getByRole('button',{name:'重置筛选',exact:true}).click();
+ const styled=data.items.find(i=>i.style_zh);await dialog.getByRole('combobox',{name:'具体发型'}).selectOption(styled.style_zh);
+ if(await dialog.locator('.dp-count').textContent()!==`${data.items.filter(i=>i.style_zh===styled.style_zh).length} 张`)throw Error('style filter');
+ await dialog.getByRole('button',{name:'重置筛选',exact:true}).click();await dialog.getByRole('combobox',{name:'排序方式'}).selectOption('overall');
+ if(await dialog.locator('.df-card').first().getAttribute('data-id')!==data.items.find(i=>i.rank_overall===1).id)throw Error('rank sort');
+ await search.fill('no-face-result');if(!(await dialog.getByRole('region',{name:'脸模列表'}).textContent()).includes('没有找到'))throw Error('empty state');
+ await search.fill(second.id);await dialog.locator('.df-card').first().click();
+ await detail.getByRole('button',{name:'中文',exact:true}).click();if(await detail.getByLabel('脸模提示词',{exact:true}).textContent()!==second.prompt_zh)throw Error('prompt');
+ await detail.getByRole('button',{name:'放大查看脸模细节',exact:true}).click();await page.getByRole('button',{name:'原始尺寸 1:1',exact:true}).click();
+ if(await page.locator('.dp-zoom-viewport img').evaluate(e=>e.getBoundingClientRect().width)!==second.width)throw Error('zoom native');
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelectorAll('dialog').length===1);
+ const download=page.waitForEvent('download');await detail.getByRole('button',{name:'下载无损图',exact:true}).click();if((await download).suggestedFilename()!==`${second.id}-lossless.webp`)throw Error('download');
+ await page.setViewportSize({width:390,height:844});if(await dialog.evaluate(e=>e.scrollWidth>e.clientWidth+2))throw Error('mobile overflow');await dialog.screenshot({path:'output/playwright/face-mobile.png'});
+ await dialog.getByRole('button',{name:'使用这张脸模 · 中文',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('dialog'));
+ if(await page.evaluate(()=>window.testNode.widgets[0].value)!==second.id)throw Error('commit');
+ await page.setViewportSize({width:1280,height:900});await root.getByRole('button',{name:/打开完整脸模库/}).click();await detail.getByRole('button',{name:'English',exact:true}).click();await dialog.getByRole('button',{name:'关闭',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('dialog'));
+ if(await page.evaluate(()=>window.testNode.widgets[1].value)!=='中文')throw Error('cancel language');
+ await page.route(`**/face-gallery/image/${first.id}`,r=>r.abort());await root.getByRole('button',{name:`${first.id} ${first.hair_zh}`,exact:true}).click();await root.getByRole('status').filter({hasText:'原选择已保留'}).waitFor();
+ if(await page.evaluate(()=>window.testNode.widgets[0].value)!==second.id)throw Error('failure changes selection');await page.unroute(`**/face-gallery/image/${first.id}`);
+ await page.evaluate(id=>{window.testNode.widgets[0].value=id;window.testNode.widgets[1].value='English';window.testNode.size=[340,900];window.testNode.onConfigure()},first.id);
+ await root.locator('.dpn-selected').filter({hasText:first.id}).waitFor();await layout();if(await page.evaluate(()=>window.testNode.size[1])!==598)throw Error('height restore');
+ await root.getByRole('button',{name:/打开完整脸模库/}).click();await page.evaluate(()=>window.testNode.onRemoved());await page.waitForFunction(()=>!document.querySelector('dialog')&&!document.querySelector('.dapao-face-node'));
+ await page.route('**/face-gallery/catalog',r=>r.fulfill({status:500,contentType:'application/json',body:JSON.stringify({error:'目录失败测试'})}));await page.reload();await root.getByRole('button',{name:'重试',exact:true}).waitFor();await page.unroute('**/face-gallery/catalog');await root.getByRole('button',{name:'重试',exact:true}).click();await root.locator('.dpn-card').first().waitFor();
+ console.log('PASS node sizes, type/hair/style filters, ranking, search, prompts, zoom, download, mobile, selection/cancel, failure/retry, restore/removal');
+}

@@ -15,6 +15,13 @@ from PIL import Image
 MAX_INPUT_IMAGE_EDGE = 2048
 
 
+def pil2tensor(image: Image.Image):
+    """Convert a PIL image to a ComfyUI RGB IMAGE batch, float32 in [0, 1]."""
+    import torch
+
+    return torch.from_numpy(np.array(image.convert("RGB"), dtype=np.float32) / 255.0).unsqueeze(0)
+
+
 def resize_pil_for_input(image: Image.Image, max_edge: int = MAX_INPUT_IMAGE_EDGE) -> Image.Image:
     """Return an image whose longest edge is no larger than ``max_edge``."""
     image = image.copy()
@@ -68,6 +75,7 @@ IMAGE_429_HINT = (
 
 
 __all__ = [
+    "pil2tensor",
     "MAX_INPUT_IMAGE_EDGE",
     "resize_pil_for_input",
     "tensor_to_pil_images",

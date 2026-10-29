@@ -1,0 +1,15 @@
+/* Reuse pose gallery tokens and spacing; only face-specific differences here. */
+.dapao-face .df-card { display:flex; flex-direction:column; text-align:left; gap:6px; }
+.dapao-face .df-card img { display:block; width:100%; aspect-ratio:4/5; object-fit:contain; background:#f2f2f2; border-radius:6px; }
+.dapao-face .df-card strong { font-size:13px; }.dapao-face .df-card small { font-size:11px; }
+.df-tags { display:flex; flex-wrap:wrap; gap:5px; }.df-tags span { background:#30363f; border:1px solid #465161; border-radius:5px; padding:3px 6px; font-size:12px; }
+.df-language { display:flex; gap:8px; flex:none; }.df-language button { flex:1; padding:7px 12px; min-height:34px; }
+.df-language button[aria-pressed=true] { background:#2877bc; border-color:#83baff; }
+.df-prompt { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.6 system-ui,sans-serif; background:#191c22; padding:10px; border-radius:7px; user-select:text; }
+.dapao-face .dp-main { grid-template-columns:minmax(0,1fr) 360px; }
+.dapao-face .dp-detail-image { height:300px; }
+.dapao-face-node .dpn-grid { grid-auto-rows:minmax(100px,1fr); }
+.dapao-face-node .dpn-message { max-height:64px; overflow:auto; }
+@media(max-width:760px) { .dapao-face .dp-main { grid-template-columns:1fr; } }
+
+.dapao-face-node .df-language button[aria-pressed=true] { background:#2877bc; border-color:#83baff; }

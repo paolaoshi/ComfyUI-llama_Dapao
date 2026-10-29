@@ -1,0 +1,53 @@
+async (page) => {
+ await page.reload();
+ const root=page.locator('.dapao-costume-node');await root.locator('.dpn-card').first().waitFor();
+ if(await root.locator('.dpn-card').count()!==6)throw Error('quick cards');
+ await root.getByRole('button',{name:'SPR-0001 春季',exact:true}).click();
+ await page.waitForFunction(()=>window.testNode.widgets[0].value==='SPR-0001');
+ await root.getByRole('button',{name:'English',exact:true}).click();
+ await page.waitForFunction(()=>window.testNode.widgets[1].value==='English');
+ const layout=async()=>{
+  const box=await root.evaluate(e=>{const r=s=>{const b=e.querySelector(s).getBoundingClientRect();return {top:b.top,bottom:b.bottom}};return {grid:r('.dpn-grid'),selected:r('.dpn-selected'),button:r('.dpn-open'),footer:r('.dpn-footer'),language:r('.dc-language'),bottom:e.getBoundingClientRect().bottom,overflow:e.scrollWidth>e.clientWidth};});
+  if(box.overflow||box.grid.bottom>box.selected.top||box.language.bottom+8>box.button.top||box.button.bottom>box.footer.top||box.footer.bottom>box.bottom)throw Error('overlap '+JSON.stringify(box));
+ };
+ for(const width of [360,430,600]){await page.evaluate(w=>{const n=window.testNode,s=[w,300];n.onResize(s);n.setSize(s)},width);await layout();}
+ await page.evaluate(()=>window.testNode.setSize([430,598]));await root.screenshot({path:'output/playwright/costume-node.png'});
+ await root.getByRole('button',{name:/打开完整服装库/}).click();
+ const dialog=page.locator('dialog.dapao-costume'),detail=dialog.getByRole('complementary',{name:'服装详情'}),search=dialog.getByRole('textbox',{name:'搜索服装'});
+ if(!(await detail.getByLabel('服装提示词',{exact:true}).textContent()).includes('Spring costume'))throw Error('English prompt');
+ await dialog.getByRole('button',{name:'夏季 · 254',exact:true}).click();
+ if(await dialog.locator('.dc-card').count()!==30)throw Error('first page');
+ await dialog.getByRole('button',{name:'加载更多（剩余 224）',exact:true}).click();
+ if(await dialog.locator('.dc-card').count()!==60)throw Error('pagination');
+ await search.fill('not-an-outfit-000');if(!(await dialog.getByRole('region',{name:'服装列表'}).textContent()).includes('没有找到'))throw Error('empty');
+ await dialog.getByRole('button',{name:'重置筛选',exact:true}).click();await search.fill('SPR-0002');
+ await dialog.getByRole('button',{name:'SPR-0002 春季',exact:true}).click();
+ await detail.getByRole('button',{name:'中文',exact:true}).click();
+ if(!(await detail.getByLabel('服装提示词',{exact:true}).textContent()).includes('春季服装'))throw Error('Chinese prompt');
+ await detail.getByRole('button',{name:'放大查看服装细节',exact:true}).click();
+ await page.getByRole('button',{name:'原始尺寸 1:1',exact:true}).click();
+ if(await page.locator('.dp-zoom-viewport img').evaluate(e=>e.getBoundingClientRect().width)!==1366)throw Error('native size zoom');
+ await page.getByRole('button',{name:'适应窗口',exact:true}).click();await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelectorAll('dialog').length===1);
+ const downloaded=page.waitForEvent('download');await detail.getByRole('button',{name:'下载无损图',exact:true}).click();if((await downloaded).suggestedFilename()!=='SPR-0002-lossless.webp')throw Error('download');
+ await page.setViewportSize({width:1440,height:1000});await dialog.screenshot({path:'output/playwright/costume-gallery.png'});
+ await page.setViewportSize({width:390,height:844});
+ if(await dialog.evaluate(e=>e.scrollWidth>e.clientWidth+2))throw Error('mobile overflow');
+ await dialog.screenshot({path:'output/playwright/costume-mobile.png'});
+ await dialog.getByRole('button',{name:'使用这套服装 · 中文',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('dialog'));
+ if(await page.evaluate(()=>window.testNode.widgets[0].value+':'+window.testNode.widgets[1].value)!=='SPR-0002:中文')throw Error('commit');
+ if(await root.locator('.dpn-card[aria-pressed=true]').count()!==1)throw Error('external selection');
+ await root.getByRole('button',{name:/打开完整服装库/}).click();await detail.getByRole('button',{name:'English',exact:true}).click();await dialog.getByRole('button',{name:'关闭',exact:true}).click();
+ await page.waitForFunction(()=>!document.querySelector('dialog'));if(await page.evaluate(()=>window.testNode.widgets[1].value)!=='中文')throw Error('cancel language');
+ await page.setViewportSize({width:1280,height:900});
+ await page.route('**/costume-gallery/image/AUT-0001',route=>route.abort());
+ await root.getByRole('button',{name:'AUT-0001 秋季',exact:true}).click();await root.getByRole('status').filter({hasText:'原选择已保留'}).waitFor();
+ if(await page.evaluate(()=>window.testNode.widgets[0].value)!=='SPR-0002')throw Error('failed selection changed value');
+ await page.unroute('**/costume-gallery/image/AUT-0001');
+ await page.evaluate(()=>{const n=window.testNode;n.widgets[0].value='WIN-0001';n.widgets[1].value='English';n.size=[340,700];n.onConfigure();});
+ await root.locator('.dpn-selected').filter({hasText:'WIN-0001'}).waitFor();await layout();
+ if(await page.evaluate(()=>window.testNode.size[1])!==598)throw Error('trim node size');
+ await root.getByRole('button',{name:/打开完整服装库/}).click();await page.evaluate(()=>window.testNode.onRemoved());await page.waitForFunction(()=>!document.querySelector('dialog')&&!document.querySelector('.dapao-costume-node'));
+ await page.route('**/costume-gallery/catalog',r=>r.fulfill({status:500,contentType:'application/json',body:JSON.stringify({error:'目录失败测试'})}));await page.reload();await root.getByRole('button',{name:'重试',exact:true}).waitFor();
+ await page.unroute('**/costume-gallery/catalog');await root.getByRole('button',{name:'重试',exact:true}).click();await root.locator('.dpn-card').first().waitFor();
+ console.log('PASS quick selection, language, 3 widths, gallery categories/search/pagination, full-size zoom, download, mobile, commit/cancel, error retention, configuration, deletion, catalog retry');
+}
