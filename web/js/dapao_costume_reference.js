@@ -1,3 +1,4 @@
+import { referenceControls } from "./dapao_reference_controls.js";
 import { app } from "../../../scripts/app.js";
 import { api } from "../../../scripts/api.js";
 
@@ -199,11 +200,15 @@ app.registerExtension({
                 opened=openCostumeGallery(previous,previousLanguage,(item,lang)=>{if(idWidget.value!==previous||languageWidget.value!==previousLanguage)throw Error("节点参数已变化，请重新打开图库");commit(item,lang);});
             };
             const openButton=button("打开完整服装库  →",open,"dpn-open");root.append(heading,grid,selected,languages,status,openButton,footer);
+            const controls = referenceControls(node, root, { items: () => data?.items, current: () => idWidget.value, select: choose, imageUrl, blocked: () => busy || !!opened?.isConnected, textOutputs: item => {
+                const suffix = languageWidget.value === "English" ? "en" : "zh";
+                return [null, `${item.id} · ${item.category_zh}；${item.tags_zh.join("、")}`, item[`prompt_${suffix}`], item[`negative_prompt_${suffix}`], item.id];
+            } });
             for(const event of ["pointerdown","keydown","wheel"])root.addEventListener(event,e=>e.stopPropagation());
             const dom=node.addDOMWidget("costume_preview","costume_preview",root,{serialize:false,getMinHeight:()=>480,getHeight:()=>480,hideOnZoom:false,hideInPanel:true});
             dom.options??={};dom.options.minNodeSize=[360,0];dom.computeSize=w=>[Math.max(360,w||0),480];
             function render() {
-                if(!alive)return;const active=data?.items.find(i=>i.id===idWidget.value);grid.replaceChildren();selected.replaceChildren();
+                if(!alive)return;const active=data?.items.find(i=>i.id===idWidget.value);grid.replaceChildren();selected.replaceChildren();controls.update(active);
                 selected.append(el("span","",active?`已选：${active.id} · ${active.category_zh}`:idWidget.value?"素材 ID 无效，请重新选择":"请选择一套服装"));
                 if(active)selected.append(el("small","",active.tags_zh.slice(0,5).join(" · ")));
                 if(data){

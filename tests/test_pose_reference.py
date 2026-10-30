@@ -57,7 +57,7 @@ class PoseTests(unittest.TestCase):
 
     def test_registration(self):
         cls = module.NODE_CLASS_MAPPINGS["DapaoPoseReference"]
-        self.assertEqual(module.NODE_DISPLAY_NAME_MAPPINGS["DapaoPoseReference"], "精选姿势参考@泡老师的小课堂")
+        self.assertEqual(module.NODE_DISPLAY_NAME_MAPPINGS["DapaoPoseReference"], "🧍 精选姿势参考@炮老师的小课堂")
         for name in ("INPUT_TYPES", "RETURN_TYPES", "RETURN_NAMES", "FUNCTION", "CATEGORY"):
             self.assertTrue(hasattr(cls, name))
 

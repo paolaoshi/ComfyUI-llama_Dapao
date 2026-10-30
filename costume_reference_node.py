@@ -109,4 +109,4 @@ class DapaoCostumeReference:
 
 
 NODE_CLASS_MAPPINGS = {"DapaoCostumeReference": DapaoCostumeReference}
-NODE_DISPLAY_NAME_MAPPINGS = {"DapaoCostumeReference": "精选服装参考@泡老师的小课堂"}
+NODE_DISPLAY_NAME_MAPPINGS = {"DapaoCostumeReference": "👗 精选服装参考@炮老师的小课堂"}

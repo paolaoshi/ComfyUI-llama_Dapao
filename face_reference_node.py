@@ -109,4 +109,4 @@ class DapaoFaceReference:
 
 
 NODE_CLASS_MAPPINGS = {"DapaoFaceReference": DapaoFaceReference}
-NODE_DISPLAY_NAME_MAPPINGS = {"DapaoFaceReference": "美女脸模素材@泡老师的小课堂"}
+NODE_DISPLAY_NAME_MAPPINGS = {"DapaoFaceReference": "👩 美女脸模素材@炮老师的小课堂"}

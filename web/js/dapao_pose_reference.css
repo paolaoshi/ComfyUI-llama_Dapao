@@ -48,3 +48,7 @@
 .dapao-pose-node .dpn-open:active:not(:disabled) { background:#1058ae; }
 .dpn-footer { flex:none; text-align:center; }
 @media(max-width:760px) { .dapao-pose { width:98vw; max-width:98vw; height:96dvh; max-height:96dvh; }.dapao-pose header { padding:10px; flex-wrap:wrap; }.dp-filters { padding:10px; max-height:33dvh; overflow:auto; }.dp-main { grid-template-columns:1fr; overflow:auto; display:block; }.dp-list,.dp-detail { overflow:visible; }.dp-detail { border-left:0; border-top:1px solid var(--dp-border); }.dp-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.dapao-pose footer { padding:10px; }.dp-row select { max-width:100%; } }
+
+.dpn-accessible-actions { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.dpn-accessible-actions:focus-within { position:relative; width:auto; height:auto; clip-path:none; flex:none; display:flex; gap:8px; }
+.dpn-accessible-actions a { color:#bcdcff; }

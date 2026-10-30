@@ -1,3 +1,4 @@
+import { referenceControls } from "./dapao_reference_controls.js";
 import { app } from "../../../scripts/app.js";
 import { api } from "../../../scripts/api.js";
 
@@ -41,7 +42,7 @@ async function catalog(reload = false) {
 }
 
 // Exported to let the isolated browser harness exercise the actual production dialog.
-export function openPoseGallery(selectedId, onSelect) {
+export function openPoseGallery(selectedId, onSelect, { itemFilter = () => true } = {}) {
     styles();
     const dialog = el("dialog", "dapao-pose");
     const header = el("header"), title = el("div");
@@ -95,7 +96,7 @@ export function openPoseGallery(selectedId, onSelect) {
         try {
             const data = await catalog(reload);
             if (!dialog.isConnected) return;
-            items = data.items; allGroups = groups(items);
+            items = data.items.filter(itemFilter); allGroups = groups(items);
             renderSystems(); renderCategories(); renderList();
             const saved = items.find(i => i.id === selectedId);
             if (saved) choose(saved);
@@ -310,6 +311,7 @@ app.registerExtension({
             };
             const openButton = button("打开完整姿势库  →", open); openButton.className = "dpn-open";
             root.append(heading, grid, selected, angleRow, message, openButton, footer);
+            const controls = referenceControls(node, root, { items: () => data?.items, current: () => widget.value, select, imageUrl: url, blocked: () => busy || !!openDialog?.isConnected, textOutputs: item => [null, `${item.name}；${item.system}；${item.category}；${item.angle}；${item.number}`, item.id] });
             // One DOM flow owns all controls: canvas buttons cannot overlap the preview.
             for (const event of ["pointerdown", "keydown", "wheel"]) root.addEventListener(event, e => e.stopPropagation());
             const dom = node.addDOMWidget("pose_preview", "pose_preview", root, {
@@ -321,6 +323,7 @@ app.registerExtension({
             function render() {
                 if (!alive) return;
                 const active = data?.items.find(i => i.id === widget.value);
+                controls.update(active);
                 label.textContent = active ? `已选：${active.name}` : widget.value ? "姿势 ID 无效，请重新选择" : "请选择一个姿势";
                 idLabel.textContent = active ? active.id : ""; idLabel.title = active?.id || "";
                 grid.replaceChildren(); angleRow.replaceChildren();

@@ -40,7 +40,7 @@ class CostumeTests(unittest.TestCase):
         with TemporaryDirectory() as directory,patch.object(module,'RESOURCE_ROOT',Path(directory)):
             with self.assertRaisesRegex(FileNotFoundError,'本地服装素材'):module.catalog()
     def test_registration(self):
-        cls=module.NODE_CLASS_MAPPINGS['DapaoCostumeReference'];self.assertEqual(module.NODE_DISPLAY_NAME_MAPPINGS['DapaoCostumeReference'],'精选服装参考@泡老师的小课堂')
+        cls=module.NODE_CLASS_MAPPINGS['DapaoCostumeReference'];self.assertEqual(module.NODE_DISPLAY_NAME_MAPPINGS['DapaoCostumeReference'],'👗 精选服装参考@炮老师的小课堂')
         for attr in ('INPUT_TYPES','RETURN_TYPES','RETURN_NAMES','CATEGORY','FUNCTION'):self.assertTrue(hasattr(cls,attr))
         self.assertEqual(len(cls.RETURN_TYPES),5)
 

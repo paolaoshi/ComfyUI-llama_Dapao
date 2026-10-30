@@ -92,4 +92,4 @@ class DapaoPoseReference:
 
 
 NODE_CLASS_MAPPINGS = {"DapaoPoseReference": DapaoPoseReference}
-NODE_DISPLAY_NAME_MAPPINGS = {"DapaoPoseReference": "精选姿势参考@泡老师的小课堂"}
+NODE_DISPLAY_NAME_MAPPINGS = {"DapaoPoseReference": "🧍 精选姿势参考@炮老师的小课堂"}

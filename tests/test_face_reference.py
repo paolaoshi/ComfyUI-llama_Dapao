@@ -41,7 +41,7 @@ class FaceTests(unittest.TestCase):
         with TemporaryDirectory() as directory,patch.object(module,'RESOURCE_ROOT',Path(directory)):
             with self.assertRaisesRegex(FileNotFoundError,'本地脸模素材'):module.catalog()
     def test_registration(self):
-        cls=module.NODE_CLASS_MAPPINGS['DapaoFaceReference'];self.assertEqual(module.NODE_DISPLAY_NAME_MAPPINGS['DapaoFaceReference'],'美女脸模素材@泡老师的小课堂')
+        cls=module.NODE_CLASS_MAPPINGS['DapaoFaceReference'];self.assertEqual(module.NODE_DISPLAY_NAME_MAPPINGS['DapaoFaceReference'],'👩 美女脸模素材@炮老师的小课堂')
         for attr in ('INPUT_TYPES','RETURN_TYPES','RETURN_NAMES','CATEGORY','FUNCTION'):self.assertTrue(hasattr(cls,attr))
         self.assertEqual(len(cls.RETURN_TYPES),5)
 
