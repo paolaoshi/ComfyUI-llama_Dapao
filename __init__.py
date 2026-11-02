@@ -6,6 +6,7 @@ from pathlib import Path
 import aiohttp.web
 import server
 from .model_incubator_node import NODE_CLASS_MAPPINGS as INCUBATOR_NODES, NODE_DISPLAY_NAME_MAPPINGS as INCUBATOR_NAMES
+from .comic_options_node import NODE_CLASS_MAPPINGS as COMIC_NODES, NODE_DISPLAY_NAME_MAPPINGS as COMIC_NAMES
 from .pose_reference_node import NODE_CLASS_MAPPINGS as POSE_NODES, NODE_DISPLAY_NAME_MAPPINGS as POSE_NAMES
 from .costume_reference_node import NODE_CLASS_MAPPINGS as COSTUME_NODES, NODE_DISPLAY_NAME_MAPPINGS as COSTUME_NAMES
 
@@ -34,6 +35,7 @@ from .skill_runtime import (
 )
 
 NODE_CLASS_MAPPINGS = {
+    **COMIC_NODES,
     **INCUBATOR_NODES,
     **FACE_NODES,
     **COSTUME_NODES,
@@ -50,6 +52,7 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    **COMIC_NAMES,
     **INCUBATOR_NAMES,
     **FACE_NAMES,
     **COSTUME_NAMES,

@@ -193,7 +193,8 @@ class DapaoLocalH3Prompt(io.ComfyNode):
             ],
             outputs=[io.String.Output("h3_prompt", display_name="🎬H3提示词"),
                      io.String.Output("selected_skill", display_name="🧩选中Skill"),
-                     io.String.Output("detected_mode", display_name="🧭识别模式")],
+                     io.String.Output("detected_mode", display_name="🧭识别模式"),
+                     io.String.Output("reference_notes", display_name="🖼️参考解析")],
         )
 
     @classmethod
@@ -202,12 +203,19 @@ class DapaoLocalH3Prompt(io.ComfyNode):
                 reference_images=None, reference_videos=None):
         failed = True
         active = model
+        visual_facts = ''
+        comic_strong = skill == 'moss-comic-director-local' and '"mode":"强参考"' in prompt.split('\n',1)[0]
         try:
             if not prompt.strip():
                 raise ValueError("请先填写需求描述。")
             if skill != "auto" and skill not in SKILL_NAMES:
                 raise ValueError("所选Skill不存在，请刷新节点后重新选择。")
             images = _autogrow_values(reference_images)
+            if skill == 'moss-comic-director-local':
+                from .comic_reference_protocol import prepare_references
+                prompt, selected_images = prepare_references(prompt, reference_images)
+                if selected_images is not None:
+                    images = selected_images
             videos = _autogrow_values(reference_videos)
             _validate_reference_images(images)
             details = _reference_video_details(videos, video_sample_frames_per_sec)
@@ -230,6 +238,40 @@ class DapaoLocalH3Prompt(io.ComfyNode):
                         {"role": "user", "content": user_content}]
             params = {**_sampling_settings(settings["think"]), "seed": seed,
                       "max_tokens": int(max_tokens), "stream": False}
+            if comic_strong and images:
+                # Ground visual identity before exposing the model to story stereotypes.
+                bindings = prompt.split('\n\n',1)[0]
+                inspect_prompt = (bindings + '\n先只观察实际图片，不编故事、不设计服装、不猜角色职业。'
+                    '逐图按绑定用途输出视觉事实：画风图写黑白/彩色、墨线粗细、排线实黑、五官与身体造型、材质、分格节奏；'
+                    '角色图写脸型、眼型、发型的具体形状、可见衣服类别与裁剪、首饰位置和形状。'
+                    '特别区分额头饰品与横跨鼻梁/面颊的面饰，布料披帛与金属护甲；不能将金色首饰当成盔甲。'
+                    '严格按工作流绑定用途观察：角色图仅记录身份外观，场景图仅记录建筑地形环境，不记录其中人物服装。'
+                    '布局图仅记录格数、行列、区域和阅读路径，不继承人物、字句或画风。道具与动作图只记录相应用途。'
+                    '只有绑定为画风的图片才能决定画风；没有画风图时不从第一张角色图或场景图推断全局风格。'
+                    '看不到的全身部位明确未知，不把首饰延伸成全身铠甲。'
+                    '只交付各图对应用途的可见事实，不写合成绘制方案，不替用户决定风格，不出现剧情。')
+                visual_content, _ = _user_content(inspect_prompt, duration, images, [], mode)
+                visual_messages = [{'role':'system','content':'你是视觉资料记录员。依据实际图片记录可见特征，不迎合题材、不把未知细节当事实。'},
+                                   {'role':'user','content':visual_content}]
+                visual_response, _ = _create_completion(llm, visual_messages, {**params,'temperature':0.15,'max_tokens':min(int(max_tokens),2200)})
+                visual_facts = _reply(visual_response)
+                if not visual_facts:
+                    raise RuntimeError('强参考未能完成图片特征提取，请检查视觉模型。')
+                # Bind each reference to its assigned purpose before story composition.
+                # Re-exposing all pictures lets scenery people contaminate newly designed roles.
+                messages = [messages[0], {'role': 'user', 'content': prompt}]
+                # The observed facts remain visible and attributed in the node output.
+                messages.append({'role':'user','content':'已完成的参考观察：\n'+visual_facts+
+                    '\n现在根据原始剧情编写漫画。角色外观以以上实际观察为锚，动作变化不意味着换装。'
+                    '输出前检查所有分格：黑白方案不得再次写原色，首饰位置和服装类别不要变成题材刻板装束。'
+                    '只有实际绑定的画风图才影响画法；没有画风图时依用户文字和漫画风格选项，角色/场景图不替代画风。'
+                    '原始需求指定的事件与结果必须落实，参考不改变用户结局。'
+                    '最终提示词具体写出可见特征并落实本次字形与字效，不只说“保持参考”。'})
+            if selected == 'moss-comic-director-local':
+                from .comic_lettering import final_lettering_reminder
+                lettering_hint = final_lettering_reminder(prompt)
+                if lettering_hint:
+                    messages.append({'role':'user', 'content':lettering_hint})
             response, _ = _create_completion(llm, messages, params)
             result = _reply(response)
             issues = output_issues(result, mode, duration)
@@ -242,8 +284,16 @@ class DapaoLocalH3Prompt(io.ComfyNode):
                 result = _reply(response)
                 if output_issues(result, mode, duration):
                     raise RuntimeError("模型未返回正文。请关闭思考，或提高上下文长度和最大输出tokens后重试。")
+            if selected == 'moss-comic-director-local':
+                from .comic_script_review import review_messages
+                reviewed, _ = _create_completion(llm, review_messages(prompt, visual_facts, result),
+                    {**params, 'temperature': 0.15})
+                refined = _reply(reviewed)
+                if not refined.strip():
+                    raise RuntimeError('漫画交稿整理未返回正文，请重试。')
+                result = refined
             failed = False
-            return io.NodeOutput(result, selected, mode)
+            return io.NodeOutput(result, selected, mode, visual_facts)
         finally:
             if failed or force_unload_model or _should_unload(model):
                 _release_model(active)
