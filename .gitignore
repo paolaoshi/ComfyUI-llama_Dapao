@@ -8,3 +8,9 @@
 # Python runtime caches stay local and must not be committed.
 __pycache__/
 *.py[cod]
+
+# Code-only publication: keep reference libraries and generated previews local.
+/resources/face-gallery/
+/resources/pose-gallery/
+/web/js/comic_previews/
+/output/playwright/
