@@ -4,3 +4,7 @@
 # Local browser receipts can contain downloaded garment images/screenshots.
 /.playwright-cli/
 /output/playwright/costume-*.png
+
+# Python runtime caches stay local and must not be committed.
+__pycache__/
+*.py[cod]
