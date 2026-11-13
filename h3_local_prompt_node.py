@@ -206,11 +206,20 @@ class DapaoLocalH3Prompt(io.ComfyNode):
         visual_facts = ''
         comic_strong = skill == 'moss-comic-director-local' and '"mode":"强参考"' in prompt.split('\n',1)[0]
         try:
+            images = _autogrow_values(reference_images)
             if not prompt.strip():
-                raise ValueError("请先填写需求描述。")
+                if skill == "moss-dual-image-prompt" and images:
+                    prompt = "按实际参考观察还原单幅画面，输出可直接生图的中文提示词。"
+                elif skill == "moss-dual-image-prompt":
+                    raise ValueError("请填写提示词或上传参考图。")
+                elif skill == "moss-mj-art-direction" and images:
+                    prompt = "依据实际参考图反推一份单幅画面的生成提示词，忠实保留主体、构图、光色、材质和媒介。"
+                elif skill == "moss-mj-art-direction":
+                    raise ValueError("请填写创作需求，或开启图 A 并上传参考图。")
+                else:
+                    raise ValueError("请先填写需求描述。")
             if skill != "auto" and skill not in SKILL_NAMES:
                 raise ValueError("所选Skill不存在，请刷新节点后重新选择。")
-            images = _autogrow_values(reference_images)
             if skill == 'moss-comic-director-local':
                 from .comic_reference_protocol import prepare_references
                 prompt, selected_images = prepare_references(prompt, reference_images)
@@ -226,6 +235,12 @@ class DapaoLocalH3Prompt(io.ComfyNode):
             llm = active.llm
             seed = int(seed) % 0xFFFFFFFF
             mode = detect_h3_mode(len(images), len(videos))
+            if skill == "qwen-face-swap-scene":
+                if len(images) != 2 or videos:
+                    raise ValueError("换脸提示词优化需要两张已选人物的局部图，依次连接底图和脸图。")
+                mode = "reference-image"
+            if skill == "moss-dual-image-prompt":
+                mode = "reference-image" if images else "text-to-image"
             if mode is None:
                 mode = parse_mode_selection(_route(llm, mode_router_prompt(prompt, len(images)), seed, 32), len(images))
             content, summary = _user_content(prompt, duration, images, details, mode)
@@ -238,6 +253,21 @@ class DapaoLocalH3Prompt(io.ComfyNode):
                         {"role": "user", "content": user_content}]
             params = {**_sampling_settings(settings["think"]), "seed": seed,
                       "max_tokens": int(max_tokens), "stream": False}
+            if selected == "qwen-face-swap-scene":
+                messages[1]["content"][0] = text_content("图1为原始局部底图，图2为原始局部脸图。严格根据以下已选换脸设置，补充针对本次画面的编辑指令。\n" + prompt)
+                params.update(temperature=0.25, presence_penalty=0.0)
+            if selected == "moss-dual-image-prompt":
+                messages[1]["content"] = prompt
+            if selected == "moss-dual-image-prompt" and images:
+                observation = "请独立观察这张参考图，以中文记录可见主体、构图、光色、材质和前后层次。人物重点记录可见身形、重心、姿势、手部关系与表情；其他题材按实际内容记录，不添加人物。不要改图，不猜测不可见部分。"
+                content = [text_content(observation), *(image_content(image) for image in images)]
+                observed, _ = _create_completion(llm, [{"role": "user", "content": content}],
+                    {**params, "temperature": 0.15, "max_tokens": min(int(max_tokens), 1600)})
+                visual_facts = _reply(observed)
+                if not visual_facts.strip():
+                    raise RuntimeError("未能解析参考图，请检查视觉模型。")
+                messages = [messages[0], {"role": "user", "content":
+                    f"参考图观察记录：{visual_facts}\n用户要求：{prompt}\n请直接交付最终画面提示词。"}]
             if comic_strong and images:
                 # Ground visual identity before exposing the model to story stereotypes.
                 bindings = prompt.split('\n\n',1)[0]

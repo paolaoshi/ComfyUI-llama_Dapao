@@ -42,7 +42,7 @@ class H3Tests(unittest.TestCase):
     def test_schema(self):
         node = port.DapaoLocalH3Prompt
         self.assertEqual(node.INPUT_TYPES()["required"]["model"][0], "DAPAO_LOCAL_MODEL")
-        self.assertEqual(tuple(node.RETURN_TYPES), ("STRING",) * 3)
+        self.assertEqual(tuple(node.RETURN_TYPES), ("STRING",) * 4)
         original_skills = {
             "3d-animation-short-generator", "brand-promo-video-generator",
             "co-op-game-intro-generator", "h3-prompt-writing",
@@ -57,13 +57,13 @@ class H3Tests(unittest.TestCase):
     def test_moss_custom_skill_execution(self):
         skill = "moss-image-prompt-local"
         self.assertIn(skill, port.SKILL_NAMES)
-        self.assertEqual(self.run_node(skill=skill), ("有效正文", skill, "t2va"))
+        self.assertEqual(self.run_node(skill=skill), ("有效正文", skill, "t2va", ""))
         self.route.assert_not_called()
         messages = self.generate.call_args.args[1]
         self.assertIn("Return exactly one cohesive MOSS-Image prompt", messages[0]["content"])
 
     def test_text_and_auto_skill(self):
-        self.assertEqual(self.run_node(skill="auto"), ("有效正文", "h3-prompt-writing", "t2va"))
+        self.assertEqual(self.run_node(skill="auto"), ("有效正文", "h3-prompt-writing", "t2va", ""))
         self.route.assert_called_once()
         messages, params = self.generate.call_args.args[1:]
         self.assertIsInstance(messages[1]["content"], str)

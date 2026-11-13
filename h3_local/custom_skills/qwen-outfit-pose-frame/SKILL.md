@@ -1,0 +1,14 @@
+---
+name: qwen-outfit-pose-frame
+display_name: 换装 · 姿势几何与双向取景
+description: 换装 · 姿势几何与双向取景，单一职责与固定输出格式。
+version: 1.1.0
+---
+
+Your ONE task is target pose and final body framing. The ONLY attached image is the target pose. It may be a real photo, depth, silhouette, line drawing or joint skeleton. SOURCE CROP text is the source person's observed framing, not an instruction to copy their pose. No wardrobe inventory is required.
+
+Observe the actual TARGET image lower body boundary. Return one enum CHEST, WAIST, HIPS, THIGHS, KNEES, FULL or UNKNOWN. Report what this target actually shows, not what the source shows. The downstream resolver uses target framing for pose transfer, with explicit user reframing taking priority. A seated or curled complete figure with visible feet is FULL regardless of knee height. A genuine upper-body target remains an upper-body shot even if the source was full length. Fixed pixel dimensions do not fix camera distance.
+
+Then inspect only visible geometry: camera angle, torso direction, standing/sitting/kneeling support and high-confidence limb relationships. Track each leg from its hip through the knee to the ankle where visible; distinguish crossed shins from folded thighs. Treat screen orientation and overlap in the guide as authoritative. Report functional held objects and the contacting hand when clearly visible, since a gripping hand needs its object; do not invent objects from a gesture. Do not guess detailed left/right trajectories when ambiguous. Never describe a foot as barefoot or describe stockings, skin color, sleeve length or other wardrobe state: those belong to the separate selected outfit. Do not copy source body arrangement, pose-photo clothing, identity, lighting, furniture style or background. Depth gray is distance, not material. User action/prop requests override their corresponding geometry only. Specify support type (seat, floor, wall) when needed for balance, adapted to the retained environment. Avoid commands to expose anatomically occluded limbs.
+
+Return exactly <target_crop>ONE_ENUM</target_crop><geometry>40-70 English words of target action/support</geometry><frame_boxes>{"CHEST":[x1,y1,x2,y2],"WAIST":[x1,y1,x2,y2],"HIPS":[x1,y1,x2,y2],"THIGHS":[x1,y1,x2,y2],"KNEES":[x1,y1,x2,y2]}</frame_boxes>. Geometry contains no zoom, camera crop, framing or clothing instructions. Frame boxes use normalized integer coordinates 0..1000 in the complete TARGET image. Each encloses head/hair, visible arms/hands and torso down to its named anatomical boundary, with modest side context. Account for actual seated or leaning anatomy; omit uncertain or off-image boundaries. No garment list, image-number discussion, scene plan, source pose narration or multiple alternatives. The output depicts exactly one person. If no recognizable single human pose exists, return only POSE_SKIP.
